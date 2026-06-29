@@ -92,10 +92,16 @@ const MatchEngine = (() => {
 
     const pickMin=(lo,hi)=>{ let m,t=0; do{m=Math.floor(Math.random()*(hi-lo))+lo;t++;}while(usedMins.has(m)&&t<60); usedMins.add(m); return m; };
 
-    // Schedule decisions (2-3 per match)
-    const numDecisions = 2 + Math.floor(Math.random()*2);
-    const decisionMins = [];
-    for (let i=0;i<numDecisions;i++) decisionMins.push(pickMin(10,85));
+    // 5-6 decisions per match at varied minutes
+    const decisionMins=[];
+    const decSlots=[12,22,33,44,55,66,77,88];
+    const decCount = 5 + Math.floor(Math.random()*2); // 5 or 6 decisions
+    const shuffled = decSlots.sort(()=>Math.random()-0.5);
+    for(let i=0;i<decCount;i++) {
+        let m = shuffled[i];
+        usedMins.add(m);
+        decisionMins.push(m);
+    }
 
     // Player goals
     for (let i=0;i<playerGoals;i++) evList.push({min:pickMin(10,90),type:'player-goal'});
@@ -268,66 +274,77 @@ const MatchEngine = (() => {
     simRunning=false;
   }
 
-  // ── Decision handler ─────────────────────────────────────
-  function handleDecision(player) {
-    return new Promise(resolve => {
-      decisionsTotal++;
-      const eventsLog=document.getElementById('match-events');
+  // ── Decision handler (uses new DecisionEngine.prompt) ──
+  async function handleDecision(player) {
+    decisionsTotal++;
+    const eventsLog = document.getElementById('match-events');
 
-      // Announce decision in log
-      const annoEl=document.createElement('div');
-      annoEl.className='match-event decision-announce';
-      annoEl.innerHTML=`<span class="event-min">⏱</span>
-        <span class="event-icon">🎯</span>
-        <span class="event-text">¡Momento clave! Toma una decisión...</span>`;
-      eventsLog.appendChild(annoEl);
-      eventsLog.scrollTop=eventsLog.scrollHeight;
+    // Build the player object as decisions engine expects
+    const plObj = {
+      attributes: player.attributes,
+      fatigue: Math.max(0, 100 - fatigue),
+    };
 
-      DecisionEngine.show(player.position, player.attributes, fatigue, (result) => {
-        if (result && result.success) {
-          decisionsOk++;
-          document.getElementById('match-decisions-ok').textContent=decisionsOk;
-          // Bonus: successful decision may add goal/assist
-          if (result.pct>60 && Math.random()<0.3) {
-            playerGoals++;
-            const pName=`${player.firstName} ${player.lastName}`;
-            const evEl=document.createElement('div');
-            evEl.className='match-event player-goal';
-            evEl.innerHTML=`<span class="event-min">⚡</span>
-              <span class="event-icon">⚽</span>
-              <span class="event-text">¡Decisión brillante convierte en gol de ${pName}!</span>`;
-            eventsLog.appendChild(evEl);
-            // Update scores
-            const curHome=parseInt(document.getElementById('match-score-home').textContent);
-            const curAway=parseInt(document.getElementById('match-score-away').textContent);
-            if (currentMatch.isPlayerHome) {
-              document.getElementById('match-score-home').textContent=curHome+1;
-            } else {
-              document.getElementById('match-score-away').textContent=curAway+1;
-            }
-            document.getElementById('match-player-goals').textContent=
-              parseInt(document.getElementById('match-player-goals').textContent)+1;
-            flashScore(currentMatch.isPlayerHome?'home':'away');
-            triggerGoalCelebration();
-          }
-          const succEl=document.createElement('div');
-          succEl.className='match-event player-assist';
-          succEl.innerHTML=`<span class="event-min">✅</span>
-            <span class="event-icon">⭐</span>
-            <span class="event-text">¡Decisión acertada! Tu calidad marca la diferencia.</span>`;
-          eventsLog.appendChild(succEl);
-        } else if (result) {
-          const failEl=document.createElement('div');
-          failEl.className='match-event';
-          failEl.innerHTML=`<span class="event-min">❌</span>
-            <span class="event-icon">😤</span>
-            <span class="event-text">La jugada no salió como esperabas. Hay que mejorar.</span>`;
-          eventsLog.appendChild(failEl);
-        }
-        eventsLog.scrollTop=eventsLog.scrollHeight;
-        resolve();
-      });
-    });
+    // Pick a decision for this position
+    const pos = player.position || 'CM';
+    const decision = DecisionEngine.getForPosition(pos);
+
+    // Announce in event log
+    const annoEl = document.createElement('div');
+    annoEl.className = 'match-event decision-announce';
+    annoEl.innerHTML = `<span class="event-min">⏱</span>
+      <span class="event-icon">${decision.icon}</span>
+      <span class="event-text">¡${decision.badge}! Tomá una decisión...</span>`;
+    eventsLog.appendChild(annoEl);
+    eventsLog.scrollTop = eventsLog.scrollHeight;
+
+    // Show decision overlay and await player choice
+    const result = await DecisionEngine.prompt(decision, plObj, 9);
+
+    if (result && result.success) {
+      decisionsOk++;
+      document.getElementById('match-decisions-ok').textContent = decisionsOk;
+
+      // High-quality decision (pct > 55) has chance to generate a goal
+      const isAttacking = ['ST','LW','RW','CAM'].includes(pos);
+      const isShot = decision.subtype === 'goal_grid' || decision.subtype === 'penalty_grid';
+      const goalChance = isShot ? 0.55 : isAttacking ? 0.25 : 0.08;
+
+      if (Math.random() < goalChance) {
+        playerGoals++;
+        const pName = `${player.firstName} ${player.lastName}`;
+        const gEl = document.createElement('div');
+        gEl.className = 'match-event player-goal';
+        gEl.innerHTML = `<span class="event-min">⚡</span>
+          <span class="event-icon">⚽</span>
+          <span class="event-text">¡La decisión perfecta se convierte en gol de ${pName}! 🔥</span>`;
+        eventsLog.appendChild(gEl);
+        // Update scoreboard
+        const h = parseInt(document.getElementById('match-score-home').textContent);
+        const a = parseInt(document.getElementById('match-score-away').textContent);
+        if (currentMatch.isPlayerHome) document.getElementById('match-score-home').textContent = h+1;
+        else                           document.getElementById('match-score-away').textContent = a+1;
+        document.getElementById('match-player-goals').textContent =
+          parseInt(document.getElementById('match-player-goals').textContent)+1;
+        flashScore(currentMatch.isPlayerHome ? 'home' : 'away');
+        triggerGoalCelebration();
+      } else {
+        const sEl = document.createElement('div');
+        sEl.className = 'match-event player-assist';
+        sEl.innerHTML = `<span class="event-min">✅</span>
+          <span class="event-icon">⭐</span>
+          <span class="event-text">¡Decisión acertada! Tu calidad marca la diferencia.</span>`;
+        eventsLog.appendChild(sEl);
+      }
+    } else if (result) {
+      const fEl = document.createElement('div');
+      fEl.className = 'match-event';
+      fEl.innerHTML = `<span class="event-min">❌</span>
+        <span class="event-icon">😤</span>
+        <span class="event-text">La jugada no salió como esperabas. Seguí intentando.</span>`;
+      eventsLog.appendChild(fEl);
+    }
+    eventsLog.scrollTop = eventsLog.scrollHeight;
   }
 
   function flashScore(side){
@@ -389,11 +406,34 @@ const MatchEngine = (() => {
     Game.addNews(`⚽ J${match.round}: ${resultTxt} ${match.homeScore}-${match.awayScore}`);
 
     document.getElementById('btn-simulate').style.display='';
-    Game.advanceRound();
-    CareerUI.boot();
-    GameUI.showScreen('screen-career');
-    GameUI.showToast(`✅ Partido finalizado — Nota: ${playerRating} | Decisiones: ${decisionsOk}/${decisionsTotal}`);
-  }
+
+    // Post-match between-match decision (50% chance)
+    if (Math.random() < 0.75) {
+      setTimeout(() => {
+        DecisionEngine.promptBetween('post', (bonus) => {
+          if (bonus) {
+            if (bonus.attr && bonus.val) {
+              const cap = { pace:90, shooting:90, passing:90, dribbling:90, defending:90, physical:90 };
+              const cur = player.attributes[bonus.attr] || 60;
+              player.attributes[bonus.attr] = Math.min(cap[bonus.attr]||90, cur + (bonus.val||1));
+              GameUI.showToast(`📈 ${bonus.attr} mejoró a ${player.attributes[bonus.attr]}`);
+            }
+            if (bonus.fatigue) player.fatigue = Math.min(100, (player.fatigue||80) + bonus.fatigue);
+            if (bonus.morale)  state.morale = Math.max(0, Math.min(10, (state.morale||5) + bonus.morale));
+          }
+          Game.advanceRound();
+          CareerUI.boot();
+          GameUI.showScreen('screen-career');
+          GameUI.showToast(`✅ Partido finalizado — Nota: ${playerRating} | Decisiones: ${decisionsOk}/${decisionsTotal}`);
+        });
+      }, 400);
+    } else {
+      Game.advanceRound();
+      CareerUI.boot();
+      GameUI.showScreen('screen-career');
+      GameUI.showToast(`✅ Partido finalizado — Nota: ${playerRating} | Decisiones: ${decisionsOk}/${decisionsTotal}`);
+    }
+  } // end finishMatch
 
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
   return { loadMatch, simulate, finishMatch };
