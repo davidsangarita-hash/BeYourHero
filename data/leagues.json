@@ -1,0 +1,148 @@
+{
+  "leagues": [
+    {
+      "id": "premier_league",
+      "name": "Premier League",
+      "country": "England",
+      "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+      "color": "#3d195b",
+      "accentColor": "#00ff87",
+      "logo": "⚽",
+      "prestige": 5,
+      "clubs": [
+        { "id": "mancity", "name": "Manchester City", "shortName": "MCI", "prestige": 5, "budget": 200, "color": "#6CABDD", "stadium": "Etihad Stadium", "capacity": 53000 },
+        { "id": "arsenal", "name": "Arsenal", "shortName": "ARS", "prestige": 5, "budget": 180, "color": "#EF0107", "stadium": "Emirates Stadium", "capacity": 60260 },
+        { "id": "liverpool", "name": "Liverpool", "shortName": "LIV", "prestige": 5, "budget": 185, "color": "#C8102E", "stadium": "Anfield", "capacity": 61276 },
+        { "id": "chelsea", "name": "Chelsea", "shortName": "CHE", "prestige": 5, "budget": 190, "color": "#034694", "stadium": "Stamford Bridge", "capacity": 40834 },
+        { "id": "manu", "name": "Manchester United", "shortName": "MUN", "prestige": 5, "budget": 175, "color": "#DA291C", "stadium": "Old Trafford", "capacity": 74310 },
+        { "id": "tottenham", "name": "Tottenham Hotspur", "shortName": "TOT", "prestige": 4, "budget": 140, "color": "#132257", "stadium": "Tottenham Hotspur Stadium", "capacity": 62850 },
+        { "id": "newcastle", "name": "Newcastle United", "shortName": "NEW", "prestige": 4, "budget": 160, "color": "#241F20", "stadium": "St. James' Park", "capacity": 52305 },
+        { "id": "astonvilla", "name": "Aston Villa", "shortName": "AVL", "prestige": 4, "budget": 130, "color": "#95BFE5", "stadium": "Villa Park", "capacity": 42785 }
+      ]
+    },
+    {
+      "id": "la_liga",
+      "name": "La Liga",
+      "country": "Spain",
+      "flag": "🇪🇸",
+      "color": "#FF6B35",
+      "accentColor": "#FFD700",
+      "logo": "⚽",
+      "prestige": 5,
+      "clubs": [
+        { "id": "realmadrid", "name": "Real Madrid", "shortName": "RMA", "prestige": 5, "budget": 250, "color": "#FEBE10", "stadium": "Santiago Bernabéu", "capacity": 81044 },
+        { "id": "barcelona", "name": "FC Barcelona", "shortName": "BAR", "prestige": 5, "budget": 220, "color": "#A50044", "stadium": "Spotify Camp Nou", "capacity": 99354 },
+        { "id": "atletico", "name": "Atlético de Madrid", "shortName": "ATM", "prestige": 5, "budget": 160, "color": "#CB3524", "stadium": "Civitas Metropolitano", "capacity": 68456 },
+        { "id": "sevilla", "name": "Sevilla FC", "shortName": "SEV", "prestige": 4, "budget": 110, "color": "#D4021D", "stadium": "Estadio Ramón Sánchez-Pizjuán", "capacity": 43883 },
+        { "id": "villarreal", "name": "Villarreal CF", "shortName": "VIL", "prestige": 4, "budget": 90, "color": "#FFD700", "stadium": "Estadio de la Cerámica", "capacity": 23500 },
+        { "id": "realbetis", "name": "Real Betis", "shortName": "BET", "prestige": 3, "budget": 80, "color": "#00954C", "stadium": "Estadio Benito Villamarín", "capacity": 60721 },
+        { "id": "sociedad", "name": "Real Sociedad", "shortName": "RSO", "prestige": 3, "budget": 75, "color": "#0067B1", "stadium": "Reale Arena", "capacity": 39500 },
+        { "id": "valencia", "name": "Valencia CF", "shortName": "VAL", "prestige": 4, "budget": 85, "color": "#FF7900", "stadium": "Estadio de Mestalla", "capacity": 49430 }
+      ]
+    },
+    {
+      "id": "bundesliga",
+      "name": "Bundesliga",
+      "country": "Germany",
+      "flag": "🇩🇪",
+      "color": "#D00027",
+      "accentColor": "#FFD700",
+      "logo": "⚽",
+      "prestige": 4,
+      "clubs": [
+        { "id": "bayernmunich", "name": "Bayern Munich", "shortName": "BAY", "prestige": 5, "budget": 220, "color": "#DC052D", "stadium": "Allianz Arena", "capacity": 75024 },
+        { "id": "dortmund", "name": "Borussia Dortmund", "shortName": "BVB", "prestige": 5, "budget": 170, "color": "#FDE100", "stadium": "Signal Iduna Park", "capacity": 81365 },
+        { "id": "leverkusen", "name": "Bayer Leverkusen", "shortName": "B04", "prestige": 4, "budget": 130, "color": "#E32221", "stadium": "BayArena", "capacity": 30210 },
+        { "id": "leipzig", "name": "RB Leipzig", "shortName": "RBL", "prestige": 4, "budget": 140, "color": "#DD0741", "stadium": "Red Bull Arena", "capacity": 47069 },
+        { "id": "frankfurtt", "name": "Eintracht Frankfurt", "shortName": "SGE", "prestige": 3, "budget": 90, "color": "#E1000F", "stadium": "Deutsche Bank Park", "capacity": 58000 },
+        { "id": "wolfsburg", "name": "VfL Wolfsburg", "shortName": "WOB", "prestige": 3, "budget": 80, "color": "#65B32E", "stadium": "Volkswagen Arena", "capacity": 30000 }
+      ]
+    },
+    {
+      "id": "serie_a",
+      "name": "Serie A",
+      "country": "Italy",
+      "flag": "🇮🇹",
+      "color": "#0066CC",
+      "accentColor": "#009246",
+      "logo": "⚽",
+      "prestige": 4,
+      "clubs": [
+        { "id": "juventus", "name": "Juventus", "shortName": "JUV", "prestige": 5, "budget": 160, "color": "#000000", "stadium": "Allianz Stadium", "capacity": 41507 },
+        { "id": "intermilan", "name": "Inter Milan", "shortName": "INT", "prestige": 5, "budget": 170, "color": "#010E80", "stadium": "San Siro", "capacity": 75923 },
+        { "id": "acmilan", "name": "AC Milan", "shortName": "MIL", "prestige": 5, "budget": 165, "color": "#FB090B", "stadium": "San Siro", "capacity": 75923 },
+        { "id": "napoli", "name": "Napoli", "shortName": "NAP", "prestige": 4, "budget": 130, "color": "#12A0C3", "stadium": "Diego Armando Maradona", "capacity": 54726 },
+        { "id": "roma", "name": "AS Roma", "shortName": "ROM", "prestige": 4, "budget": 110, "color": "#8E1F2F", "stadium": "Stadio Olimpico", "capacity": 70634 },
+        { "id": "lazio", "name": "SS Lazio", "shortName": "LAZ", "prestige": 4, "budget": 105, "color": "#87D8F7", "stadium": "Stadio Olimpico", "capacity": 70634 }
+      ]
+    },
+    {
+      "id": "ligue1",
+      "name": "Ligue 1",
+      "country": "France",
+      "flag": "🇫🇷",
+      "color": "#1B2A4A",
+      "accentColor": "#EF3340",
+      "logo": "⚽",
+      "prestige": 4,
+      "clubs": [
+        { "id": "psg", "name": "Paris Saint-Germain", "shortName": "PSG", "prestige": 5, "budget": 280, "color": "#004170", "stadium": "Parc des Princes", "capacity": 47929 },
+        { "id": "marseille", "name": "Olympique de Marseille", "shortName": "OM", "prestige": 4, "budget": 100, "color": "#2FAEE0", "stadium": "Orange Vélodrome", "capacity": 67394 },
+        { "id": "monaco", "name": "AS Monaco", "shortName": "MON", "prestige": 4, "budget": 120, "color": "#EF3340", "stadium": "Stade Louis II", "capacity": 18523 },
+        { "id": "lyon", "name": "Olympique Lyonnais", "shortName": "OL", "prestige": 4, "budget": 95, "color": "#B01816", "stadium": "Groupama Stadium", "capacity": 59186 },
+        { "id": "lille", "name": "LOSC Lille", "shortName": "LIL", "prestige": 3, "budget": 80, "color": "#D52B1E", "stadium": "Stade Pierre-Mauroy", "capacity": 50157 }
+      ]
+    },
+    {
+      "id": "liga_mx",
+      "name": "Liga MX",
+      "country": "Mexico",
+      "flag": "🇲🇽",
+      "color": "#006847",
+      "accentColor": "#CE1126",
+      "logo": "⚽",
+      "prestige": 3,
+      "clubs": [
+        { "id": "america", "name": "Club América", "shortName": "AME", "prestige": 4, "budget": 60, "color": "#FFD700", "stadium": "Estadio Azteca", "capacity": 87523 },
+        { "id": "chivas", "name": "Chivas Guadalajara", "shortName": "GDL", "prestige": 4, "budget": 55, "color": "#BC1028", "stadium": "Estadio Akron", "capacity": 49850 },
+        { "id": "cruzazul", "name": "Cruz Azul", "shortName": "CAZ", "prestige": 3, "budget": 50, "color": "#1A4C9E", "stadium": "Estadio Ciudad de los Deportes", "capacity": 31000 },
+        { "id": "pumas", "name": "Pumas UNAM", "shortName": "PUM", "prestige": 3, "budget": 40, "color": "#003C71", "stadium": "Estadio Olímpico Universitario", "capacity": 52779 },
+        { "id": "tigres", "name": "Tigres UANL", "shortName": "TIG", "prestige": 4, "budget": 65, "color": "#FFB300", "stadium": "Estadio Universitario", "capacity": 42114 },
+        { "id": "monterrey", "name": "CF Monterrey", "shortName": "MTY", "prestige": 4, "budget": 70, "color": "#003865", "stadium": "Estadio BBVA", "capacity": 53500 }
+      ]
+    },
+    {
+      "id": "eredivisie",
+      "name": "Eredivisie",
+      "country": "Netherlands",
+      "flag": "🇳🇱",
+      "color": "#FF6600",
+      "accentColor": "#003087",
+      "logo": "⚽",
+      "prestige": 3,
+      "clubs": [
+        { "id": "ajax", "name": "AFC Ajax", "shortName": "AJX", "prestige": 4, "budget": 85, "color": "#D2122E", "stadium": "Johan Cruyff Arena", "capacity": 54990 },
+        { "id": "psv", "name": "PSV Eindhoven", "shortName": "PSV", "prestige": 4, "budget": 80, "color": "#C8102E", "stadium": "Philips Stadion", "capacity": 35000 },
+        { "id": "feyenoord", "name": "Feyenoord", "shortName": "FEY", "prestige": 4, "budget": 75, "color": "#D61F26", "stadium": "De Kuip", "capacity": 51117 },
+        { "id": "az", "name": "AZ Alkmaar", "shortName": "AZ", "prestige": 3, "budget": 50, "color": "#D81920", "stadium": "AFAS Stadion", "capacity": 17023 }
+      ]
+    },
+    {
+      "id": "mls",
+      "name": "MLS",
+      "country": "USA",
+      "flag": "🇺🇸",
+      "color": "#1A1A2E",
+      "accentColor": "#E8003D",
+      "logo": "⚽",
+      "prestige": 3,
+      "clubs": [
+        { "id": "lafc", "name": "LAFC", "shortName": "LAFC", "prestige": 4, "budget": 75, "color": "#C39E6D", "stadium": "BMO Stadium", "capacity": 22000 },
+        { "id": "inter_miami", "name": "Inter Miami CF", "shortName": "MIA", "prestige": 4, "budget": 90, "color": "#F7B5CD", "stadium": "Chase Stadium", "capacity": 21550 },
+        { "id": "ny_city", "name": "New York City FC", "shortName": "NYC", "prestige": 3, "budget": 65, "color": "#6CABDD", "stadium": "Yankee Stadium", "capacity": 28743 },
+        { "id": "seattle", "name": "Seattle Sounders FC", "shortName": "SEA", "prestige": 4, "budget": 70, "color": "#5D9732", "stadium": "Lumen Field", "capacity": 69000 },
+        { "id": "atlatlanta", "name": "Atlanta United", "shortName": "ATL", "prestige": 3, "budget": 65, "color": "#80000A", "stadium": "Mercedes-Benz Stadium", "capacity": 72000 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Be Your Hero – Football Career Mode</title>
+  <meta name="description" content="Be Your Hero – Crea tu jugador, elige tu liga y vive una carrera épica de fútbol."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bebas+Neue&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+</head>
+<body>
+<canvas id="particlesCanvas"></canvas>
+
+<!-- ══════════════════ SPLASH ══════════════════ -->
+<div id="screen-splash" class="screen active">
+  <div class="splash-bg" style="background-image:url('assets/bg_menu.png')"></div>
+  <div class="splash-overlay"></div>
+  <div class="splash-content">
+    <div class="splash-logo">
+      <div class="logo-ring"><div class="logo-ball-spin">⚽</div></div>
+      <h1 class="logo-title">BE YOUR HERO</h1>
+      <p class="logo-sub">FOOTBALL CAREER MODE</p>
+    </div>
+    <div class="splash-loader">
+      <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+      <p class="loader-text" id="loaderText">Cargando ligas...</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ MAIN MENU ══════════════════ -->
+<div id="screen-menu" class="screen">
+  <div class="menu-bg-img" style="background-image:url('assets/bg_menu.png')"></div>
+  <div class="menu-vignette"></div>
+  <div class="menu-content">
+    <div class="menu-header">
+      <div class="menu-logo-area">
+        <span class="menu-ball-icon">⚽</span>
+        <span class="menu-logo-text">BE YOUR HERO</span>
+      </div>
+    </div>
+    <div class="menu-main">
+      <div class="menu-tagline">
+        <h2>Tu historia.<br/>Tu gloria.</h2>
+        <p>Crea tu jugador y conquista el mundo del fútbol</p>
+        <div class="menu-leagues-strip" id="menu-leagues-strip"></div>
+      </div>
+      <div class="menu-options">
+        <button id="btn-new-career" class="menu-btn primary" onclick="GameUI.showScreen('screen-create')">
+          <span class="btn-icon">⚡</span><span class="btn-label">Nueva Carrera</span><span class="btn-arrow">→</span>
+        </button>
+        <button id="btn-continue" class="menu-btn secondary" onclick="GameUI.loadCareer()">
+          <span class="btn-icon">📁</span><span class="btn-label">Continuar</span><span class="btn-arrow">→</span>
+        </button>
+        <button class="menu-btn ghost" onclick="GameUI.showScreen('screen-credits')">
+          <span class="btn-icon">ℹ️</span><span class="btn-label">Créditos</span><span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+    <div class="menu-footer"><p>Be Your Hero v2.0 &nbsp;|&nbsp; © 2026 BYH Studios</p></div>
+  </div>
+</div>
+
+<!-- ══════════════════ CREATE PLAYER ══════════════════ -->
+<div id="screen-create" class="screen">
+  <div class="create-bg" style="background-image:url('assets/bg_create.png')"></div>
+  <div class="create-overlay"></div>
+  <div class="create-header">
+    <button class="back-btn" onclick="GameUI.showScreen('screen-menu')">← Volver</button>
+    <h2 class="section-title">⚡ Crear Tu Jugador</h2>
+    <div class="steps-indicator">
+      <div class="step active" id="step-dot-1">1</div>
+      <div class="step-line"></div>
+      <div class="step" id="step-dot-2">2</div>
+      <div class="step-line"></div>
+      <div class="step" id="step-dot-3">3</div>
+      <div class="step-line"></div>
+      <div class="step" id="step-dot-4">4</div>
+    </div>
+  </div>
+
+  <!-- Step 1: Identity -->
+  <div id="create-step-1" class="create-step active">
+    <div class="create-card">
+      <h3 class="step-title">👤 Identidad del Jugador</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="player-name">Nombre</label>
+          <input type="text" id="player-name" placeholder="Ej: Carlos" maxlength="20"/>
+        </div>
+        <div class="form-group">
+          <label for="player-lastname">Apellido</label>
+          <input type="text" id="player-lastname" placeholder="Ej: Mendoza" maxlength="20"/>
+        </div>
+        <div class="form-group full">
+          <label for="player-country">País / Nacionalidad</label>
+          <div class="select-wrapper">
+            <div class="flag-preview-svg" id="flag-preview-svg"></div>
+            <select id="player-country"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="player-age">Edad de inicio</label>
+          <input type="number" id="player-age" min="16" max="22" value="17"/>
+        </div>
+        <div class="form-group">
+          <label for="player-dorsal">Número Dorsal</label>
+          <input type="number" id="player-dorsal" min="1" max="99" value="10"/>
+        </div>
+      </div>
+      <button class="btn-next" onclick="PlayerCreator.nextStep(2)">Siguiente: Apariencia →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Avatar Customization -->
+  <div id="create-step-2" class="create-step">
+    <div class="create-card wide">
+      <h3 class="step-title">🎨 Apariencia del Jugador</h3>
+      <div id="avatar-creator-mount"></div>
+      <div class="step-nav">
+        <button class="btn-back-step" onclick="PlayerCreator.nextStep(1)">← Atrás</button>
+        <button class="btn-next" onclick="PlayerCreator.nextStep(3)">Siguiente: Posición →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Position & Attributes -->
+  <div id="create-step-3" class="create-step">
+    <div class="create-card">
+      <h3 class="step-title">⚽ Posición y Atributos</h3>
+      <div class="positions-grid">
+        <div class="pos-card" data-pos="GK" onclick="selectPosition(this)"><span class="pos-icon">🧤</span><span class="pos-name">Portero</span><span class="pos-desc">GK</span></div>
+        <div class="pos-card" data-pos="CB" onclick="selectPosition(this)"><span class="pos-icon">🛡️</span><span class="pos-name">Defensa Central</span><span class="pos-desc">CB</span></div>
+        <div class="pos-card" data-pos="LB" onclick="selectPosition(this)"><span class="pos-icon">⬅️</span><span class="pos-name">Lateral Izq.</span><span class="pos-desc">LB</span></div>
+        <div class="pos-card" data-pos="RB" onclick="selectPosition(this)"><span class="pos-icon">➡️</span><span class="pos-name">Lateral Der.</span><span class="pos-desc">RB</span></div>
+        <div class="pos-card" data-pos="CM" onclick="selectPosition(this)"><span class="pos-icon">⚙️</span><span class="pos-name">Centrocampista</span><span class="pos-desc">CM</span></div>
+        <div class="pos-card" data-pos="CAM" onclick="selectPosition(this)"><span class="pos-icon">🎯</span><span class="pos-name">Mediapunta</span><span class="pos-desc">CAM</span></div>
+        <div class="pos-card" data-pos="LW" onclick="selectPosition(this)"><span class="pos-icon">💨</span><span class="pos-name">Extremo Izq.</span><span class="pos-desc">LW</span></div>
+        <div class="pos-card" data-pos="ST" onclick="selectPosition(this)"><span class="pos-icon">🔥</span><span class="pos-name">Delantero Centro</span><span class="pos-desc">ST</span></div>
+      </div>
+      <div class="attributes-section">
+        <h4>Puntos libres: <span id="points-remaining" class="gold-text">20</span></h4>
+        <div class="attrs-grid">
+          <div class="attr-row"><span class="attr-icon">💨</span><span class="attr-name">Velocidad</span><div class="attr-bar"><div class="attr-fill" id="bar-pace"></div></div><div class="attr-controls"><button onclick="adjustAttr('pace',-1)">−</button><span id="val-pace" class="attr-val">60</span><button onclick="adjustAttr('pace',1)">+</button></div></div>
+          <div class="attr-row"><span class="attr-icon">🎯</span><span class="attr-name">Remate</span><div class="attr-bar"><div class="attr-fill" id="bar-shooting"></div></div><div class="attr-controls"><button onclick="adjustAttr('shooting',-1)">−</button><span id="val-shooting" class="attr-val">60</span><button onclick="adjustAttr('shooting',1)">+</button></div></div>
+          <div class="attr-row"><span class="attr-icon">📐</span><span class="attr-name">Pase</span><div class="attr-bar"><div class="attr-fill" id="bar-passing"></div></div><div class="attr-controls"><button onclick="adjustAttr('passing',-1)">−</button><span id="val-passing" class="attr-val">60</span><button onclick="adjustAttr('passing',1)">+</button></div></div>
+          <div class="attr-row"><span class="attr-icon">⚡</span><span class="attr-name">Regate</span><div class="attr-bar"><div class="attr-fill" id="bar-dribbling"></div></div><div class="attr-controls"><button onclick="adjustAttr('dribbling',-1)">−</button><span id="val-dribbling" class="attr-val">60</span><button onclick="adjustAttr('dribbling',1)">+</button></div></div>
+          <div class="attr-row"><span class="attr-icon">🛡️</span><span class="attr-name">Defensa</span><div class="attr-bar"><div class="attr-fill" id="bar-defending"></div></div><div class="attr-controls"><button onclick="adjustAttr('defending',-1)">−</button><span id="val-defending" class="attr-val">60</span><button onclick="adjustAttr('defending',1)">+</button></div></div>
+          <div class="attr-row"><span class="attr-icon">💪</span><span class="attr-name">Físico</span><div class="attr-bar"><div class="attr-fill" id="bar-physical"></div></div><div class="attr-controls"><button onclick="adjustAttr('physical',-1)">−</button><span id="val-physical" class="attr-val">60</span><button onclick="adjustAttr('physical',1)">+</button></div></div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back-step" onclick="PlayerCreator.nextStep(2)">← Atrás</button>
+        <button class="btn-next" onclick="PlayerCreator.nextStep(4)">Siguiente: Liga →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: League & Club (TIER 2 ONLY) -->
+  <div id="create-step-4" class="create-step">
+    <div class="create-card wide">
+      <h3 class="step-title">🏟️ Elige tu Liga de Segunda División</h3>
+      <div class="tier2-notice">
+        <span class="tier2-icon">⬆️</span>
+        <div>
+          <strong>Inicio realista en Segunda División</strong>
+          <p>Todo jugador empieza desde abajo. Demuestra tu talento y asciende a Primera.</p>
+        </div>
+      </div>
+      <div class="leagues-selector">
+        <div id="leagues-list" class="leagues-list"></div>
+        <div class="clubs-panel">
+          <div class="clubs-placeholder" id="clubs-placeholder">
+            <span style="font-size:40px">👈</span>
+            <p>Selecciona una liga para ver los clubes</p>
+          </div>
+          <div id="clubs-list" class="clubs-list"></div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back-step" onclick="PlayerCreator.nextStep(3)">← Atrás</button>
+        <button class="btn-confirm" onclick="PlayerCreator.confirmCareer()">⚡ ¡Comenzar Carrera!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ CAREER DASHBOARD ══════════════════ -->
+<div id="screen-career" class="screen">
+  <div class="career-bg" style="background-image:url('assets/bg_career.png')"></div>
+  <div class="career-bg-overlay"></div>
+  <div class="career-layout">
+    <aside class="career-sidebar">
+      <div class="player-card-mini">
+        <div class="player-avatar-big" id="sidebar-avatar-svg"></div>
+        <div class="player-info-mini">
+          <p class="player-name-mini" id="sidebar-name">—</p>
+          <p class="player-pos-mini" id="sidebar-pos">—</p>
+          <div class="player-overall"><span class="overall-label">OVR</span><span class="overall-value" id="sidebar-ovr">—</span></div>
+        </div>
+      </div>
+      <div class="club-card-mini">
+        <div class="club-shield-mini" id="sidebar-club-shield"></div>
+        <div>
+          <p class="club-name-mini" id="sidebar-club">—</p>
+          <p class="league-name-mini" id="sidebar-league">—</p>
+          <span class="tier-badge" id="sidebar-tier">—</span>
+        </div>
+      </div>
+      <nav class="career-nav">
+        <button class="nav-item active" data-tab="dashboard" onclick="CareerUI.switchTab(this)"><span>🏠</span> Dashboard</button>
+        <button class="nav-item" data-tab="matches" onclick="CareerUI.switchTab(this)"><span>⚽</span> Partidos</button>
+        <button class="nav-item" data-tab="stats" onclick="CareerUI.switchTab(this)"><span>📊</span> Estadísticas</button>
+        <button class="nav-item" data-tab="growth" onclick="CareerUI.switchTab(this)"><span>📈</span> Progreso</button>
+        <button class="nav-item" data-tab="transfers" onclick="CareerUI.switchTab(this)"><span>💰</span> Transferencias</button>
+      </nav>
+      <button class="btn-save" onclick="Game.saveGame()">💾 Guardar</button>
+      <button class="btn-menu-main" onclick="GameUI.showScreen('screen-menu')">🏠 Menú</button>
+    </aside>
+    <main class="career-main">
+      <!-- Tab: Dashboard -->
+      <div id="tab-dashboard" class="career-tab active">
+        <div class="dash-grid">
+          <div class="dash-card season-card">
+            <h3>📅 Temporada</h3>
+            <div class="season-info">
+              <div class="season-stat"><span class="s-label">Temporada</span><span class="s-value" id="dash-season">1</span></div>
+              <div class="season-stat"><span class="s-label">Jornada</span><span class="s-value" id="dash-round">1/34</span></div>
+              <div class="season-stat"><span class="s-label">Posición</span><span class="s-value" id="dash-position">—</span></div>
+              <div class="season-stat"><span class="s-label">División</span><span class="s-value tier-colored" id="dash-tier">2ª</span></div>
+            </div>
+            <button class="btn-next-match" onclick="CareerUI.goToNextMatch()">▶ Próximo Partido</button>
+          </div>
+          <div class="dash-card form-card">
+            <h3>🔥 Forma Reciente</h3>
+            <div class="form-badges" id="form-badges"></div>
+            <div class="season-stats-row">
+              <div><span class="ss-num" id="dash-goals">0</span><span class="ss-lab">Goles</span></div>
+              <div><span class="ss-num" id="dash-assists">0</span><span class="ss-lab">Asistencias</span></div>
+              <div><span class="ss-num" id="dash-rating">—</span><span class="ss-lab">Nota media</span></div>
+            </div>
+          </div>
+          <div class="dash-card attrs-card">
+            <h3>⚡ Atributos</h3>
+            <div class="mini-attrs" id="mini-attrs"></div>
+          </div>
+          <div class="dash-card news-card">
+            <h3>📰 Noticias</h3>
+            <div class="news-list" id="news-list"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Tab: Matches -->
+      <div id="tab-matches" class="career-tab">
+        <div class="matches-header">
+          <h2>📋 Calendario</h2>
+          <div>
+            <button onclick="CareerUI.showSchedule()" class="tab-toggle active" id="toggle-schedule">Calendario</button>
+            <button onclick="CareerUI.showTable()" class="tab-toggle" id="toggle-table">Tabla</button>
+          </div>
+        </div>
+        <div id="schedule-view"><div id="matches-list" class="matches-list"></div></div>
+        <div id="table-view" style="display:none"><div id="league-table" class="league-table-container"></div></div>
+      </div>
+      <!-- Tab: Stats -->
+      <div id="tab-stats" class="career-tab">
+        <h2>📊 Estadísticas de Carrera</h2>
+        <div class="stats-grid">
+          <div class="stat-big-card"><span class="stat-big-num" id="career-goals">0</span><span class="stat-big-lab">Goles</span></div>
+          <div class="stat-big-card"><span class="stat-big-num" id="career-assists">0</span><span class="stat-big-lab">Asistencias</span></div>
+          <div class="stat-big-card"><span class="stat-big-num" id="career-matches">0</span><span class="stat-big-lab">Partidos</span></div>
+          <div class="stat-big-card"><span class="stat-big-num" id="career-seasons">1</span><span class="stat-big-lab">Temporadas</span></div>
+        </div>
+        <div class="season-breakdown" id="season-breakdown"></div>
+      </div>
+      <!-- Tab: Growth -->
+      <div id="tab-growth" class="career-tab">
+        <h2>📈 Progreso del Jugador</h2>
+        <div class="growth-container">
+          <div class="growth-attrs" id="growth-attrs"></div>
+          <div class="growth-history"><h3>Historial de mejoras</h3><div id="growth-log" class="growth-log"></div></div>
+        </div>
+      </div>
+      <!-- Tab: Transfers -->
+      <div id="tab-transfers" class="career-tab">
+        <h2>💰 Mercado de Transferencias</h2>
+        <div class="transfer-status" id="transfer-status">
+          <p>El mercado está <span id="market-status" class="closed-tag">CERRADO</span></p>
+          <p id="market-info">Abre al final de cada temporada</p>
+        </div>
+        <div id="promotion-panel" class="promotion-panel hidden"></div>
+        <div id="transfer-offers" class="transfer-offers"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════ MATCH SCREEN ══════════════════ -->
+<div id="screen-match" class="screen">
+  <div class="match-bg" style="background-image:url('assets/bg_match.png')"></div>
+  <div class="match-bg-overlay"></div>
+  <div class="match-layout">
+    <div class="match-header-bar">
+      <div class="team-info home">
+        <div class="team-shield-sm" id="match-home-shield"></div>
+        <span class="team-name" id="match-home-name">—</span>
+      </div>
+      <div class="match-scoreboard">
+        <div class="score-display">
+          <span class="score-num" id="match-score-home">0</span>
+          <span class="score-sep">:</span>
+          <span class="score-num" id="match-score-away">0</span>
+        </div>
+        <div class="match-minute" id="match-minute">VS</div>
+        <div class="fatigue-bar-wrap">
+          <div class="fatigue-label">Energía</div>
+          <div class="fatigue-bar"><div class="fatigue-fill" id="fatigue-fill"></div></div>
+        </div>
+      </div>
+      <div class="team-info away">
+        <span class="team-name" id="match-away-name">—</span>
+        <div class="team-shield-sm" id="match-away-shield"></div>
+      </div>
+    </div>
+    <div class="match-field">
+      <div class="field-markings">
+        <div class="field-center-circle"></div>
+        <div class="field-center-line"></div>
+        <div class="field-box left"></div>
+        <div class="field-box right"></div>
+      </div>
+      <div class="match-events-wrap">
+        <div id="match-events" class="match-events-log"></div>
+      </div>
+      <div class="match-player-hud">
+        <div class="mps-item"><span>⚽</span><span id="match-player-goals">0</span><span class="mps-lab">Goles</span></div>
+        <div class="mps-item"><span>🎯</span><span id="match-player-assists">0</span><span class="mps-lab">Asist.</span></div>
+        <div class="mps-item"><span>⭐</span><span id="match-player-rating" class="gold-text">—</span><span class="mps-lab">Nota</span></div>
+        <div class="mps-item"><span>✅</span><span id="match-decisions-ok" class="green-text">0</span><span class="mps-lab">Aciertos</span></div>
+      </div>
+    </div>
+    <div class="match-controls">
+      <button id="btn-simulate" class="btn-simulate" onclick="MatchEngine.simulate()">▶ Simular Partido</button>
+      <div id="match-result-panel" class="match-result-panel hidden">
+        <h3 id="result-title">Resultado</h3>
+        <div id="result-details"></div>
+        <button class="btn-continue-career" onclick="MatchEngine.finishMatch()">Continuar →</button>
+      </div>
+    </div>
+  </div>
+  <!-- Decision Overlay -->
+  <div id="decision-overlay" class="decision-overlay hidden">
+    <div id="decision-container" class="decision-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ CREDITS ══════════════════ -->
+<div id="screen-credits" class="screen">
+  <div class="menu-bg-img" style="background-image:url('assets/bg_menu.png')"></div>
+  <div class="menu-vignette"></div>
+  <div class="credits-content">
+    <button class="back-btn" onclick="GameUI.showScreen('screen-menu')">← Volver</button>
+    <div class="credits-logo">⚽</div>
+    <h1>Be Your Hero</h1>
+    <p class="credits-version">Football Career Mode – v2.0</p>
+    <div class="credits-block"><h3>8 Ligas de Primera División</h3><p>Premier League · La Liga · Bundesliga · Serie A · Ligue 1 · Liga MX · Eredivisie · MLS</p></div>
+    <div class="credits-block"><h3>6 Ligas de Segunda División</h3><p>Championship · Segunda División · 2. Bundesliga · Serie B · Ligue 2 · Liga Expansión MX</p></div>
+    <div class="credits-block"><h3>Tecnología</h3><p>HTML5 · CSS3 · JavaScript Vanilla · SVG Avatar Engine</p></div>
+  </div>
+</div>
+
+<!-- ══════════════════ SEASON END MODAL ══════════════════ -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div id="modal-box" class="modal-box">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="js/data.js"></script>
+<script src="js/logos.js"></script>
+<script src="js/avatar.js"></script>
+<script src="js/decisions.js"></script>
+<script src="js/game.js"></script>
+<script src="js/player.js"></script>
+<script src="js/match.js"></script>
+<script src="js/career.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

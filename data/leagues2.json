@@ -1,0 +1,120 @@
+{
+  "leagues": [
+    {
+      "id": "championship",
+      "name": "Championship",
+      "country": "England",
+      "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+      "tier": 2,
+      "color": "#3d195b",
+      "accentColor": "#a0e6ff",
+      "prestige": 3,
+      "clubs": [
+        { "id": "leeds", "name": "Leeds United", "shortName": "LEE", "prestige": 3, "budget": 35, "color": "#FFCD00", "stadium": "Elland Road", "capacity": 37890 },
+        { "id": "leicester2", "name": "Leicester City", "shortName": "LEI", "prestige": 3, "budget": 40, "color": "#003090", "stadium": "King Power Stadium", "capacity": 32261 },
+        { "id": "middlesbrough", "name": "Middlesbrough", "shortName": "MID", "prestige": 2, "budget": 18, "color": "#DA020E", "stadium": "Riverside Stadium", "capacity": 34742 },
+        { "id": "sunderland", "name": "Sunderland AFC", "shortName": "SUN", "prestige": 2, "budget": 20, "color": "#EB172B", "stadium": "Stadium of Light", "capacity": 49000 },
+        { "id": "sheffield_utd", "name": "Sheffield United", "shortName": "SHU", "prestige": 2, "budget": 22, "color": "#EE2737", "stadium": "Bramall Lane", "capacity": 32702 },
+        { "id": "millwall", "name": "Millwall FC", "shortName": "MIL", "prestige": 2, "budget": 12, "color": "#001D5E", "stadium": "The Den", "capacity": 20146 },
+        { "id": "blackburn", "name": "Blackburn Rovers", "shortName": "BBR", "prestige": 2, "budget": 14, "color": "#009EE0", "stadium": "Ewood Park", "capacity": 31367 },
+        { "id": "burnley2", "name": "Burnley FC", "shortName": "BUR", "prestige": 2, "budget": 16, "color": "#6C1D45", "stadium": "Turf Moor", "capacity": 21944 }
+      ]
+    },
+    {
+      "id": "segunda_division",
+      "name": "Segunda División",
+      "country": "Spain",
+      "flag": "🇪🇸",
+      "tier": 2,
+      "color": "#FF6B35",
+      "accentColor": "#FFD700",
+      "prestige": 3,
+      "clubs": [
+        { "id": "racing_santander", "name": "Racing de Santander", "shortName": "RAC", "prestige": 2, "budget": 10, "color": "#007A33", "stadium": "El Sardinero", "capacity": 22222 },
+        { "id": "zaragoza", "name": "Real Zaragoza", "shortName": "ZAR", "prestige": 3, "budget": 18, "color": "#002F6C", "stadium": "La Romareda", "capacity": 34596 },
+        { "id": "tenerife", "name": "CD Tenerife", "shortName": "TEN", "prestige": 2, "budget": 12, "color": "#0057A8", "stadium": "Heliodoro Rodríguez", "capacity": 22800 },
+        { "id": "huesca", "name": "SD Huesca", "shortName": "HUE", "prestige": 2, "budget": 8, "color": "#004F9E", "stadium": "El Alcoraz", "capacity": 7600 },
+        { "id": "leganes", "name": "CD Leganés", "shortName": "LEG", "prestige": 2, "budget": 15, "color": "#004899", "stadium": "Estadio Municipal", "capacity": 12454 },
+        { "id": "mirandes", "name": "CD Mirandés", "shortName": "MIR", "prestige": 1, "budget": 6, "color": "#DA0000", "stadium": "Estadio Anduva", "capacity": 5600 },
+        { "id": "eldense", "name": "UD Eldense", "shortName": "ELD", "prestige": 1, "budget": 4, "color": "#003DA5", "stadium": "Estadio Nuevo Pepico Amat", "capacity": 4200 },
+        { "id": "cartagena", "name": "FC Cartagena", "shortName": "CAR", "prestige": 2, "budget": 10, "color": "#002868", "stadium": "Estadio Cartagonova", "capacity": 13000 }
+      ]
+    },
+    {
+      "id": "bundesliga2",
+      "name": "2. Bundesliga",
+      "country": "Germany",
+      "flag": "🇩🇪",
+      "tier": 2,
+      "color": "#D00027",
+      "accentColor": "#FFD700",
+      "prestige": 3,
+      "clubs": [
+        { "id": "hamburger_sv", "name": "Hamburger SV", "shortName": "HSV", "prestige": 3, "budget": 28, "color": "#005CA9", "stadium": "Volksparkstadion", "capacity": 57000 },
+        { "id": "schalke", "name": "FC Schalke 04", "shortName": "S04", "prestige": 3, "budget": 25, "color": "#004D9D", "stadium": "Veltins-Arena", "capacity": 62271 },
+        { "id": "hannover", "name": "Hannover 96", "shortName": "H96", "prestige": 2, "budget": 15, "color": "#006B2B", "stadium": "HDI Arena", "capacity": 49200 },
+        { "id": "kaiserslautern", "name": "1. FC Kaiserslautern", "shortName": "FCK", "prestige": 2, "budget": 12, "color": "#DD0000", "stadium": "Fritz Walter Stadion", "capacity": 49780 },
+        { "id": "nurnberg", "name": "1. FC Nürnberg", "shortName": "FCN", "prestige": 2, "budget": 16, "color": "#800000", "stadium": "Max Morlock Stadion", "capacity": 50000 },
+        { "id": "magdeburg", "name": "1. FC Magdeburg", "shortName": "FCM", "prestige": 1, "budget": 8, "color": "#007BC0", "stadium": "MDCC-Arena", "capacity": 27250 },
+        { "id": "greuther_furth", "name": "SpVgg Greuther Fürth", "shortName": "SGF", "prestige": 1, "budget": 10, "color": "#006633", "stadium": "Sportpark Ronhof", "capacity": 18000 },
+        { "id": "hertha", "name": "Hertha BSC", "shortName": "BSC", "prestige": 3, "budget": 22, "color": "#005CA9", "stadium": "Olympiastadion", "capacity": 74667 }
+      ]
+    },
+    {
+      "id": "serie_b",
+      "name": "Serie B",
+      "country": "Italy",
+      "flag": "🇮🇹",
+      "tier": 2,
+      "color": "#0066CC",
+      "accentColor": "#009246",
+      "prestige": 3,
+      "clubs": [
+        { "id": "palermo", "name": "Palermo FC", "shortName": "PAL", "prestige": 2, "budget": 15, "color": "#F5A623", "stadium": "Stadio Renzo Barbera", "capacity": 37619 },
+        { "id": "sampdoria", "name": "UC Sampdoria", "shortName": "SAM", "prestige": 3, "budget": 20, "color": "#0000FF", "stadium": "Luigi Ferraris", "capacity": 36536 },
+        { "id": "parma", "name": "Parma Calcio", "shortName": "PAR", "prestige": 3, "budget": 22, "color": "#FFF200", "stadium": "Stadio Ennio Tardini", "capacity": 27906 },
+        { "id": "brescia", "name": "Brescia Calcio", "shortName": "BRE", "prestige": 2, "budget": 14, "color": "#003DA5", "stadium": "Stadio Mario Rigamonti", "capacity": 16700 },
+        { "id": "bari", "name": "SSC Bari", "shortName": "BAR", "prestige": 2, "budget": 12, "color": "#CC0000", "stadium": "Stadio San Nicola", "capacity": 58270 },
+        { "id": "catanzaro", "name": "US Catanzaro", "shortName": "CAT", "prestige": 1, "budget": 7, "color": "#FFC222", "stadium": "Stadio Nicola Ceravolo", "capacity": 13024 },
+        { "id": "spezia", "name": "Spezia Calcio", "shortName": "SPE", "prestige": 2, "budget": 16, "color": "#FFFFFF", "stadium": "Stadio Alberto Picco", "capacity": 10336 },
+        { "id": "cremonese", "name": "US Cremonese", "shortName": "CRE", "prestige": 2, "budget": 18, "color": "#CC0000", "stadium": "Stadio Giovanni Zini", "capacity": 20000 }
+      ]
+    },
+    {
+      "id": "ligue2",
+      "name": "Ligue 2",
+      "country": "France",
+      "flag": "🇫🇷",
+      "tier": 2,
+      "color": "#1B2A4A",
+      "accentColor": "#EF3340",
+      "prestige": 2,
+      "clubs": [
+        { "id": "guingamp", "name": "EA Guingamp", "shortName": "EAG", "prestige": 2, "budget": 12, "color": "#CC0000", "stadium": "Stade du Roudourou", "capacity": 18120 },
+        { "id": "auxerre2", "name": "AJ Auxerre", "shortName": "AJA", "prestige": 2, "budget": 16, "color": "#003399", "stadium": "Stade de l'Abbé-Deschamps", "capacity": 24493 },
+        { "id": "grenoble", "name": "Grenoble Foot 38", "shortName": "GRE", "prestige": 1, "budget": 7, "color": "#0000CC", "stadium": "Stade des Alpes", "capacity": 20068 },
+        { "id": "metz", "name": "FC Metz", "shortName": "MET", "prestige": 2, "budget": 18, "color": "#95006E", "stadium": "Stade Saint-Symphorien", "capacity": 25636 },
+        { "id": "caen", "name": "SM Caen", "shortName": "SMC", "prestige": 2, "budget": 14, "color": "#C5081E", "stadium": "Stade Michel d'Ornano", "capacity": 21684 },
+        { "id": "troyes", "name": "ESTAC Troyes", "shortName": "TRO", "prestige": 2, "budget": 15, "color": "#003DA5", "stadium": "Stade de l'Aube", "capacity": 20400 }
+      ]
+    },
+    {
+      "id": "liga_expansion",
+      "name": "Liga de Expansión MX",
+      "country": "Mexico",
+      "flag": "🇲🇽",
+      "tier": 2,
+      "color": "#006847",
+      "accentColor": "#CE1126",
+      "prestige": 2,
+      "clubs": [
+        { "id": "atlante", "name": "Atlante FC", "shortName": "ATL", "prestige": 2, "budget": 8, "color": "#003DA5", "stadium": "Estadio Olímpico", "capacity": 20000 },
+        { "id": "alebrijes", "name": "Alebrijes de Oaxaca", "shortName": "ALE", "prestige": 1, "budget": 5, "color": "#009A44", "stadium": "Estadio Benito Juárez", "capacity": 10000 },
+        { "id": "cimarrones", "name": "Cimarrones de Sonora", "shortName": "CIM", "prestige": 1, "budget": 5, "color": "#9B2335", "stadium": "Estadio Héroe de Nacozari", "capacity": 10000 },
+        { "id": "celaya", "name": "FC Celaya", "shortName": "CEL", "prestige": 1, "budget": 6, "color": "#003DA5", "stadium": "Estadio Miguel Alemán Valdés", "capacity": 25000 },
+        { "id": "tapatio", "name": "Tapatío FC", "shortName": "TAP", "prestige": 2, "budget": 7, "color": "#BC1028", "stadium": "Estadio Olímpico", "capacity": 12000 },
+        { "id": "cancun", "name": "Cancún FC", "shortName": "CAN", "prestige": 1, "budget": 4, "color": "#00A3E0", "stadium": "Estadio Andrés Quintana Roo", "capacity": 16000 }
+      ]
+    }
+  ]
+}

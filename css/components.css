@@ -1,0 +1,177 @@
+/* ============================================================
+   BE YOUR HERO v2 – components.css
+   Supplementary / responsive fixes
+   ============================================================ */
+
+/* ── Score flash ── */
+@keyframes scoreFlashAnim {
+  0%,100% { text-shadow: none; }
+  30%     { text-shadow: 0 0 24px var(--gold), 0 0 48px var(--gold); transform: scale(1.4); }
+}
+.score-flash { animation: scoreFlashAnim 0.45s ease; }
+
+/* ── Confetti emitter (JS-created elements) ── */
+.confetti-piece {
+  position: fixed; width: 8px; height: 8px; border-radius: 2px;
+  animation: confetti 0.9s ease-out forwards;
+  pointer-events: none; z-index: 300;
+}
+
+/* ── Back button (shared) ── */
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600;
+}
+
+/* ── Scrollbar inside panels ── */
+.avatar-options::-webkit-scrollbar,
+.leagues-list::-webkit-scrollbar,
+.clubs-list::-webkit-scrollbar,
+.match-events-log::-webkit-scrollbar,
+.growth-log::-webkit-scrollbar { width: 3px; }
+
+/* ── Tier badge colors ── */
+.sr-tier { padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 700; }
+.sr-tier.tier2 { background: rgba(255,149,0,0.12); color: var(--tier2-color); }
+.sr-tier.tier1 { background: rgba(0,230,100,0.10); color: var(--tier1-color); }
+
+/* ── Growth log icon ── */
+.growth-log-icon { font-size: 14px; flex-shrink: 0; }
+.growth-log-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+
+/* ── Growth history header ── */
+.growth-history h3 { font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 10px; letter-spacing: 1px; }
+
+/* ── News items ── */
+.news-item { animation: fadeInUp 0.3s ease; }
+
+/* ── Avatar creator wide layout on small viewport ── */
+@media (max-width: 860px) {
+  .avatar-creator { grid-template-columns: 1fr; }
+  .avatar-preview-wrap { flex-direction: row; align-items: center; gap: 16px; padding: 14px; }
+  .avatar-preview-svg { width: 90px; }
+}
+
+/* ── Positions grid responsive ── */
+@media (max-width: 700px) {
+  .positions-grid { grid-template-columns: repeat(4, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .dash-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .growth-container { grid-template-columns: 1fr; }
+  .leagues-selector { grid-template-columns: 1fr; }
+  .decision-options.grid-4 { grid-template-columns: 1fr 1fr; }
+  .clubs-list { grid-template-columns: 1fr; }
+}
+
+/* ── Offer cards ── */
+@media (max-width: 600px) {
+  .transfer-offer-card { flex-wrap: wrap; }
+  .offer-btns { width: 100%; justify-content: flex-end; }
+}
+
+/* ── Match layout responsive ── */
+@media (max-width: 700px) {
+  .match-events-wrap { width: 92%; }
+  .match-header-bar { padding: 10px 14px; }
+  .score-num { font-size: 32px; }
+  .career-layout { grid-template-columns: 1fr; }
+  .career-sidebar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    flex-direction: row; overflow-x: auto;
+    border-right: none; border-top: 1px solid var(--border-green);
+    padding: 8px 12px; z-index: 20;
+  }
+  .career-nav { flex-direction: row; }
+  .player-card-mini, .club-card-mini { display: none; }
+  .career-main { padding: 14px; }
+}
+
+/* ── Flag preview ── */
+#flag-preview-svg {
+  width: 40px; height: 28px;
+  border-radius: 4px; overflow: hidden; border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#flag-preview-svg svg { width: 100%; height: 100%; display: block; }
+
+/* ── Menu leagues strip spacing ── */
+.menu-leagues-strip { min-height: 54px; }
+
+/* ── Promo body layout ── */
+@media (max-width: 520px) {
+  .promo-body { flex-wrap: wrap; }
+  .promo-actions { width: 100%; flex-direction: row; }
+}
+
+/* ── Button states ── */
+button:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* ── HUD item active glow ── */
+.mps-item .gold-text  { text-shadow: 0 0 12px rgba(255,215,0,0.5); }
+.mps-item .green-text { text-shadow: 0 0 12px rgba(0,230,100,0.5); }
+
+/* ── Club shield in table cell ── */
+.table-team-cell div svg { width: 100%; height: 100%; }
+
+/* ── Tab toggle group ── */
+.matches-header > div { display: flex; gap: 4px; }
+
+/* ── Decision overlay z-order over field ── */
+.decision-overlay { z-index: 50; }
+
+/* ── Step indicators done checkmark ── */
+.step.done::after { content: '✓'; }
+
+/* ── Progress bar colors by value ── */
+.attr-fill[style*="width: 6"],
+.attr-fill[style*="width: 7"],
+.attr-fill[style*="width: 8"] {
+  background: linear-gradient(90deg, #0a6b38, #00e664);
+}
+.attr-fill[style*="width: 9"],
+.attr-fill[style*="width: 100"] {
+  background: linear-gradient(90deg, var(--gold), #fffbe0);
+}
+
+/* ── Transfer offer badge ── */
+.offer-amount { display: block; text-align: center; min-width: 70px; }
+
+/* ── Stat big card animation delay ── */
+.stat-big-card { animation: countUp 0.5s ease; }
+.stat-big-card:nth-child(1) { animation-delay: 0s; }
+.stat-big-card:nth-child(2) { animation-delay: 0.07s; }
+.stat-big-card:nth-child(3) { animation-delay: 0.14s; }
+.stat-big-card:nth-child(4) { animation-delay: 0.21s; }
+
+/* ── Season row hover ── */
+.season-row:hover { background: rgba(255,255,255,0.025); }
+
+/* ── Match item round column ── */
+.match-round-col { min-width: 44px; }
+
+/* ── Career tab smooth entry ── */
+.career-tab.active { animation: fadeInUp 0.3s ease; }
+
+/* ── Club card selected with gold glow ── */
+.club-card.selected::after {
+  content: '✓'; position: absolute; top: 4px; right: 6px;
+  color: var(--gold); font-size: 11px; font-weight: 900;
+}
+.club-card { position: relative; }
+
+/* ── Fatigue bar color interpolation ── */
+@keyframes fatigueLow {
+  from { background: linear-gradient(90deg, #0e4a28, #00e664); }
+  to   { background: linear-gradient(90deg, #7a0000, #ff5050); }
+}
+
+/* ── Toast position above mobile nav ── */
+@media (max-width: 700px) {
+  .toast { bottom: 80px; }
+}
+
+/* ── Input number spin remove ── */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
