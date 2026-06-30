@@ -382,58 +382,78 @@ const MatchEngine = (() => {
   }
 
   function finishMatch(){
-    const state=Game.getState();
-    const player=state.player;
-    const match=currentMatch;
+    const state   = Game.getState();
+    const player  = state.player;
+    const match   = currentMatch;
+    const ss      = state.seasonStats;
 
-    state.seasonStats.goals   +=playerGoals;
-    state.seasonStats.assists +=playerAssists;
-    state.seasonStats.matches++;
-    state.seasonStats.ratings.push(playerRating);
-    state.seasonStats.results.push(match.result);
-    state.seasonStats.decisionsOk+=decisionsOk;
+    ss.goals        += playerGoals;
+    ss.assists      += playerAssists;
+    ss.matches++;
+    ss.ratings.push(playerRating);
+    ss.results.push(match.result);
+    ss.decisionsOk  += decisionsOk;
 
     Table.update(state.standings, match.homeTeam, match.awayTeam, match.homeScore, match.awayScore);
 
-    const changes=PlayerProgression.grow(player, playerRating, player.position);
-    const attrNames={pace:'Velocidad',shooting:'Remate',passing:'Pase',dribbling:'Regate',defending:'Defensa',physical:'Físico'};
-    changes.forEach(c=>{
-      state.growthLog.unshift(`📈 ${attrNames[c.attr]||c.attr} mejoró a ${c.newVal}`);
-      Game.addNews(`📈 ${player.firstName} mejoró su ${attrNames[c.attr]||c.attr}.`);
+    const changes   = PlayerProgression.grow(player, playerRating, player.position);
+    const attrNames = { pace:'Velocidad', shooting:'Remate', passing:'Pase', dribbling:'Regate', defending:'Defensa', physical:'Físico' };
+    changes.forEach(c => {
+      state.growthLog.unshift('📈 ' + (attrNames[c.attr]||c.attr) + ' mejoró a ' + c.newVal);
+      Game.addNews('📈 ' + player.firstName + ' mejoró su ' + (attrNames[c.attr]||c.attr) + '.');
     });
 
-    const resultTxt=match.result==='W'?'Victoria':match.result==='D'?'Empate':'Derrota';
-    Game.addNews(`⚽ J${match.round}: ${resultTxt} ${match.homeScore}-${match.awayScore}`);
+    const resultTxt = match.result === 'W' ? 'Victoria' : match.result === 'D' ? 'Empate' : 'Derrota';
+    Game.addNews('⚽ J' + match.round + ': ' + resultTxt + ' ' + match.homeScore + '-' + match.awayScore);
 
-    document.getElementById('btn-simulate').style.display='';
+    document.getElementById('btn-simulate').style.display = '';
 
-    // Post-match between-match decision (50% chance)
-    if (Math.random() < 0.75) {
-      setTimeout(() => {
-        DecisionEngine.promptBetween('post', (bonus) => {
-          if (bonus) {
-            if (bonus.attr && bonus.val) {
-              const cap = { pace:90, shooting:90, passing:90, dribbling:90, defending:90, physical:90 };
-              const cur = player.attributes[bonus.attr] || 60;
-              player.attributes[bonus.attr] = Math.min(cap[bonus.attr]||90, cur + (bonus.val||1));
-              GameUI.showToast(`📈 ${bonus.attr} mejoró a ${player.attributes[bonus.attr]}`);
-            }
-            if (bonus.fatigue) player.fatigue = Math.min(100, (player.fatigue||80) + bonus.fatigue);
-            if (bonus.morale)  state.morale = Math.max(0, Math.min(10, (state.morale||5) + bonus.morale));
-          }
-          Game.advanceRound();
-          CareerUI.boot();
-          Game.autoSave();
-          GameUI.showScreen('screen-career');
-          GameUI.showToast(`✅ Partido finalizado — Nota: ${playerRating} | Decisiones: ${decisionsOk}/${decisionsTotal}`);
-        });
-      }, 400);
-    } else {
+    // ── Decide which single post-match scenario to show ──────
+    // Context flags
+    const isWin      = match.result === 'W';
+    const isMvp      = playerRating >= 8.0 || (playerGoals >= 2);
+    const isCaptain  = player.isCaptain || false;
+    const isNewClub  = ss.matches === 1;           // first match at this club
+    const bigWin     = isWin && (match.homeScore - match.awayScore >= 3 || match.awayScore - match.homeScore >= 3);
+    const isLast3    = state.round >= state.totalRounds - 3;
+
+    // Press conference only in special moments
+    const showPress  = isMvp || bigWin || isCaptain || isNewClub || isLast3;
+
+    // Choose scenario type
+    let scenarioType = 'training';  // default: always show training
+    if (showPress && Math.random() < 0.65) {
+      scenarioType = isWin ? 'press_win' : 'press_loss';
+    }
+
+    function applyBonus(bonus) {
+      if (!bonus) return;
+      if (bonus.attr && bonus.val) {
+        const cap = { pace:92, shooting:92, passing:92, dribbling:92, defending:92, physical:92 };
+        const cur = player.attributes[bonus.attr] || 60;
+        player.attributes[bonus.attr] = Math.min(cap[bonus.attr]||92, cur + (bonus.val||1));
+        GameUI.showToast('📈 ' + (attrNames[bonus.attr]||bonus.attr) + ' mejoró a ' + player.attributes[bonus.attr]);
+      }
+      if (bonus.fatigue) player.fatigue = Math.min(100, (player.fatigue||80) + bonus.fatigue);
+      if (bonus.morale)  state.morale   = Math.max(0, Math.min(10, (state.morale||5) + bonus.morale));
+      if (bonus.rep)     player.rep     = Math.max(0, Math.min(100, (player.rep||50) + bonus.rep));
+    }
+
+    function goCareer() {
       Game.advanceRound();
       CareerUI.boot();
+      Game.autoSave();
       GameUI.showScreen('screen-career');
-      GameUI.showToast(`✅ Partido finalizado — Nota: ${playerRating} | Decisiones: ${decisionsOk}/${decisionsTotal}`);
+      const decStr = decisionsOk + '/' + decisionsTotal;
+      GameUI.showToast('✅ J' + match.round + ' finalizada — Nota: ' + playerRating + ' | Decisiones: ' + decStr);
     }
+
+    setTimeout(function() {
+      DecisionEngine.promptBetween(scenarioType, function(bonus) {
+        applyBonus(bonus);
+        goCareer();
+      });
+    }, 420);
   } // end finishMatch
 
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }

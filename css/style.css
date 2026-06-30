@@ -908,8 +908,8 @@ select option { background: #0d1421; color: var(--text-primary); }
    ║  DECISION OVERLAY (v2.1)         ║
    ╚══════════════════════════════════╝ */
 .decision-overlay {
-  position: absolute; inset: 0; z-index: 50;
-  background: rgba(0,0,0,0.78); backdrop-filter: blur(8px);
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.82); backdrop-filter: blur(10px);
   display: flex; align-items: center; justify-content: center;
 }
 .decision-container { width: 100%; max-width: 600px; padding: 14px; }
@@ -1191,3 +1191,4 @@ select option { background: #0d1421; color: var(--text-primary); }
 .news-card:nth-child(3) { animation-delay: 0.15s; }
 .news-card:nth-child(4) { animation-delay: 0.20s; }
 .news-card:nth-child(5) { animation-delay: 0.25s; }
+
