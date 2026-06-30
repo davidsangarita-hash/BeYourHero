@@ -1,427 +1,400 @@
 /* ============================================================
-   BE YOUR HERO v2 – avatar.js (v2.1)
-   Realistic proportioned SVG avatar with detailed face & kit
+   BE YOUR HERO v2 – avatar.js (v3.0)
+   Dramatically improved: realistic proportions, muscular build,
+   detailed face, dynamic shading, proper football kit
    ============================================================ */
 
 const AvatarEngine = (() => {
 
-  // ── Skin palette ──────────────────────────────────────────
-  const SKIN_TONES = [
-    { id:'s1', name:'Muy Claro',  base:'#FDDBB4', shadow:'#E8B98A', highlight:'#FFF0D0' },
-    { id:'s2', name:'Claro',      base:'#F0C08A', shadow:'#D4965E', highlight:'#FFDAA0' },
-    { id:'s3', name:'Medio',      base:'#C68642', shadow:'#A0662A', highlight:'#DCA060' },
-    { id:'s4', name:'Oscuro',     base:'#8D5524', shadow:'#6B3A10', highlight:'#AA6B35' },
-    { id:'s5', name:'Muy Oscuro', base:'#4A2912', shadow:'#321A08', highlight:'#5E3520' },
+  const SKIN = [
+    { id:'s1', base:'#FDDBB4', shadow:'#D4956A', hi:'#FFF0D8', lip:'#C4826A' },
+    { id:'s2', base:'#F0C090', shadow:'#C87A48', hi:'#FFD8A8', lip:'#B86050' },
+    { id:'s3', base:'#C68642', shadow:'#9A5E24', hi:'#DCA060', lip:'#A05030' },
+    { id:'s4', base:'#8D5524', shadow:'#6B3A10', hi:'#AA6B35', lip:'#7A3A20' },
+    { id:'s5', base:'#4A2912', shadow:'#321A08', hi:'#5E3520', lip:'#3A1A0A' },
   ];
 
-  // ── Hair colors ───────────────────────────────────────────
   const HAIR_COLORS = [
-    { id:'h1', name:'Negro',    color:'#111111' },
-    { id:'h2', name:'Marrón',   color:'#5C3317' },
-    { id:'h3', name:'Castaño',  color:'#8B4513' },
-    { id:'h4', name:'Rubio',    color:'#D4AA60' },
-    { id:'h5', name:'Pelirrojo',color:'#A0522D' },
-    { id:'h6', name:'Gris',     color:'#888888' },
-    { id:'h7', name:'Blanco',   color:'#F0F0F0' },
-    { id:'h8', name:'Azul',     color:'#1A4099' },
-    { id:'h9', name:'Verde',    color:'#1A7A3A' },
+    { id:'h1', c:'#0A0A0A' }, { id:'h2', c:'#3D2010' },
+    { id:'h3', c:'#6B3A1F' }, { id:'h4', c:'#C89040' },
+    { id:'h5', c:'#8B4513' }, { id:'h6', c:'#777777' },
+    { id:'h7', c:'#DEDEDE' }, { id:'h8', c:'#2244AA' },
+    { id:'h9', c:'#226622' },
   ];
 
-  // ── Eye colors ────────────────────────────────────────────
   const EYE_COLORS = [
-    { id:'e1', name:'Marrón',   iris:'#5C3317' },
-    { id:'e2', name:'Café',     iris:'#8B6914' },
-    { id:'e3', name:'Verde',    iris:'#2D6A2A' },
-    { id:'e4', name:'Azul',     iris:'#1A4A8C' },
-    { id:'e5', name:'Gris',     iris:'#5A6A7A' },
-    { id:'e6', name:'Negro',    iris:'#1A1A1A' },
+    { id:'e1', iris:'#3D1F08' }, { id:'e2', iris:'#7A5020' },
+    { id:'e3', iris:'#285020' }, { id:'e4', iris:'#1A3A8C' },
+    { id:'e5', iris:'#4A5A6A' }, { id:'e6', iris:'#0A0A0A' },
   ];
 
-  // ── Hair styles ───────────────────────────────────────────
-  const HAIR_STYLES = [
-    { id:'hs1', name:'Rapado',    render: (c,x,y) => `<ellipse cx="${x}" cy="${y-18}" rx="20" ry="4" fill="${c}" opacity="0.8"/>` },
-    { id:'hs2', name:'Corto',     render: (c,x,y) => `<ellipse cx="${x}" cy="${y-22}" rx="21" ry="8" fill="${c}"/><ellipse cx="${x-14}" cy="${y-16}" rx="8" ry="10" fill="${c}"/><ellipse cx="${x+14}" cy="${y-16}" rx="8" ry="10" fill="${c}"/>` },
-    { id:'hs3', name:'Largo',     render: (c,x,y) => `<ellipse cx="${x}" cy="${y-22}" rx="22" ry="10" fill="${c}"/><rect x="${x-22}" y="${y-20}" width="10" height="38" rx="5" fill="${c}"/><rect x="${x+12}" y="${y-20}" width="10" height="38" rx="5" fill="${c}"/>` },
-    { id:'hs4', name:'Afro',      render: (c,x,y) => `<ellipse cx="${x}" cy="${y-20}" rx="28" ry="26" fill="${c}"/>` },
-    { id:'hs5', name:'Mohawk',    render: (c,x,y) => `<rect x="${x-5}" y="${y-42}" width="10" height="30" rx="5" fill="${c}"/>` },
-    { id:'hs6', name:'Coleta',    render: (c,x,y) => `<ellipse cx="${x}" cy="${y-20}" rx="21" ry="9" fill="${c}"/><ellipse cx="${x}" cy="${y-10}" rx="8" ry="10" fill="${c}"/><ellipse cx="${x+1}" cy="${y+5}" rx="5" ry="9" fill="${c}"/>` },
-    { id:'hs7', name:'Rulos',     render: (c,x,y) => `<ellipse cx="${x}" cy="${y-20}" rx="22" ry="12" fill="${c}"/><circle cx="${x-16}" cy="${y-18}" r="7" fill="${c}"/><circle cx="${x+16}" cy="${y-18}" r="7" fill="${c}"/><circle cx="${x-10}" cy="${y-8}" r="6" fill="${c}"/><circle cx="${x+10}" cy="${y-8}" r="6" fill="${c}"/>` },
-    { id:'hs8', name:'Alisado',   render: (c,x,y) => `<path d="M${x-22} ${y-16} Q${x-22} ${y-40} ${x} ${y-44} Q${x+22} ${y-40} ${x+22} ${y-16} Q${x+10} ${y-8} ${x} ${y-8} Q${x-10} ${y-8} ${x-22} ${y-16}Z" fill="${c}"/>` },
-  ];
-
-  // ── Kit colors ────────────────────────────────────────────
   const KIT_COLORS = [
-    { id:'k1', name:'Rojo',     primary:'#CC0000', secondary:'#880000', trim:'#FFD700' },
-    { id:'k2', name:'Azul',     primary:'#0033AA', secondary:'#001166', trim:'#FFFFFF' },
-    { id:'k3', name:'Verde',    primary:'#006633', secondary:'#004422', trim:'#FFD700' },
-    { id:'k4', name:'Blanco',   primary:'#F5F5F5', secondary:'#DDDDDD', trim:'#222222' },
-    { id:'k5', name:'Negro',    primary:'#222222', secondary:'#111111', trim:'#FFD700' },
-    { id:'k6', name:'Naranja',  primary:'#E65C00', secondary:'#9D3E00', trim:'#FFFFFF' },
-    { id:'k7', name:'Morado',   primary:'#5500AA', secondary:'#330066', trim:'#FFD700' },
-    { id:'k8', name:'Celeste',  primary:'#40AAFF', secondary:'#1177CC', trim:'#FFFFFF' },
-    { id:'k9', name:'Amarillo', primary:'#EEC900', secondary:'#AA8800', trim:'#222222' },
-    { id:'k10',name:'Rosa',     primary:'#DD4488', secondary:'#992255', trim:'#FFFFFF' },
+    { id:'k1', p:'#CC0000', s:'#880000', t:'#FFD700', name:'Rojo' },
+    { id:'k2', p:'#0033BB', s:'#001188', t:'#FFFFFF', name:'Azul' },
+    { id:'k3', p:'#006633', s:'#004422', t:'#FFD700', name:'Verde' },
+    { id:'k4', p:'#F0F0F0', s:'#D0D0D0', t:'#111111', name:'Blanco' },
+    { id:'k5', p:'#111111', s:'#050505', t:'#FFD700', name:'Negro' },
+    { id:'k6', p:'#E65C00', s:'#9A3C00', t:'#FFFFFF', name:'Naranja' },
+    { id:'k7', p:'#6600CC', s:'#440088', t:'#FFD700', name:'Morado' },
+    { id:'k8', p:'#44AAFF', s:'#1166CC', t:'#FFFFFF', name:'Celeste' },
+    { id:'k9', p:'#EEC900', s:'#AA8800', t:'#111111', name:'Amarillo' },
+    { id:'k10',p:'#DD4488', s:'#992255', t:'#FFFFFF', name:'Rosa' },
   ];
 
-  // ── Body types ────────────────────────────────────────────
-  const BODY_TYPES = [
-    { id:'b1', name:'Delgado',  sw:18, leg:12 },
-    { id:'b2', name:'Normal',   sw:22, leg:14 },
-    { id:'b3', name:'Atlético', sw:26, leg:16 },
-    { id:'b4', name:'Robusto',  sw:30, leg:19 },
-  ];
-
-  // ── State ─────────────────────────────────────────────────
-  let current = {
-    skinId: 's2', hairId: 'hs2', hairColorId: 'h1',
-    eyeId: 'e1', kitId: 'k1', bodyId: 'b2',
-    number: 10,
+  // Hair style renderers — each takes (color, cx, headTop) and returns SVG string
+  const HAIR = {
+    hs1: { name:'Rapado', r: (c,x,t) => '<ellipse cx="'+x+'" cy="'+(t-4)+'" rx="21" ry="5" fill="'+c+'" opacity="0.7"/>' },
+    hs2: { name:'Corto',  r: (c,x,t) => '<path d="M'+(x-21)+' '+(t+2)+' Q'+(x-22)+' '+(t-16)+' '+x+' '+(t-19)+' Q'+(x+22)+' '+(t-16)+' '+(x+21)+' '+(t+2)+' Q'+(x+10)+' '+(t-4)+' '+x+' '+(t-3)+' Q'+(x-10)+' '+(t-4)+' '+(x-21)+' '+(t+2)+'Z" fill="'+c+'"/>' },
+    hs3: { name:'Largo',  r: (c,x,t) => '<path d="M'+(x-21)+' '+(t+2)+' Q'+(x-24)+' '+(t-16)+' '+x+' '+(t-20)+' Q'+(x+24)+' '+(t-16)+' '+(x+21)+' '+(t+2)+'Z" fill="'+c+'"/><rect x="'+(x-25)+'" y="'+(t)+'" width="10" height="40" rx="5" fill="'+c+'"/><rect x="'+(x+15)+'" y="'+(t)+'" width="10" height="40" rx="5" fill="'+c+'"/>' },
+    hs4: { name:'Afro',   r: (c,x,t) => '<ellipse cx="'+x+'" cy="'+(t-12)+'" rx="28" ry="24" fill="'+c+'"/>' },
+    hs5: { name:'Mohawk', r: (c,x,t) => '<path d="M'+(x-22)+' '+(t+2)+' Q'+(x-22)+' '+(t-14)+' '+x+' '+(t-18)+' Q'+(x+22)+' '+(t-14)+' '+(x+22)+' '+(t+2)+' Q'+(x+14)+' '+(t-4)+' '+x+' '+(t-4)+' Q'+(x-14)+' '+(t-4)+' '+(x-22)+' '+(t+2)+'Z" fill="'+c+'"/><rect x="'+(x-5)+'" y="'+(t-44)+'" width="10" height="30" rx="5" fill="'+c+'"/>' },
+    hs6: { name:'Coleta', r: (c,x,t) => '<path d="M'+(x-21)+' '+(t+2)+' Q'+(x-22)+' '+(t-15)+' '+x+' '+(t-19)+' Q'+(x+22)+' '+(t-15)+' '+(x+21)+' '+(t+2)+'Z" fill="'+c+'"/><ellipse cx="'+(x+1)+'" cy="'+(t+16)+'" rx="5" ry="10" fill="'+c+'"/>' },
+    hs7: { name:'Rulos',  r: (c,x,t) => '<circle cx="'+(x-15)+'" cy="'+(t-14)+'" r="8" fill="'+c+'"/><circle cx="'+(x+15)+'" cy="'+(t-14)+'" r="8" fill="'+c+'"/><circle cx="'+(x-6)+'" cy="'+(t-20)+'" r="7" fill="'+c+'"/><circle cx="'+(x+6)+'" cy="'+(t-20)+'" r="7" fill="'+c+'"/><circle cx="'+x+'" cy="'+(t-10)+'" r="9" fill="'+c+'"/>' },
+    hs8: { name:'Alisado',r: (c,x,t) => '<path d="M'+(x-22)+' '+(t+4)+' Q'+(x-26)+' '+(t-18)+' '+x+' '+(t-22)+' Q'+(x+26)+' '+(t-18)+' '+(x+22)+' '+(t+4)+' L'+(x+14)+' '+(t-2)+' Q'+x+' '+(t-6)+' '+(x-14)+' '+(t-2)+'Z" fill="'+c+'"/>' },
   };
 
-  function get(arr, id)   { return arr.find(x => x.id === id) || arr[0]; }
-  function getSkin()      { return get(SKIN_TONES, current.skinId); }
-  function getHairStyle() { return get(HAIR_STYLES, current.hairId); }
-  function getHairColor() { return get(HAIR_COLORS, current.hairColorId); }
-  function getEyes()      { return get(EYE_COLORS, current.eyeId); }
-  function getKit()       { return get(KIT_COLORS, current.kitId); }
-  function getBody()      { return get(BODY_TYPES, current.bodyId); }
+  const BODY = [
+    { id:'b1', name:'Delgado',  sw:19, lw:11 },
+    { id:'b2', name:'Normal',   sw:23, lw:14 },
+    { id:'b3', name:'Atletico', sw:27, lw:16 },
+    { id:'b4', name:'Robusto',  sw:31, lw:19 },
+  ];
 
-  // ── SVG Renderer ──────────────────────────────────────────
-  function renderSVG(opts = {}) {
-    const cfg  = { ...current, ...opts };
-    const skin = get(SKIN_TONES,   cfg.skinId      || 's2');
-    const hSt  = get(HAIR_STYLES,  cfg.hairId      || 'hs2');
-    const hCol = get(HAIR_COLORS,  cfg.hairColorId || 'h1');
-    const eye  = get(EYE_COLORS,   cfg.eyeId       || 'e1');
-    const kit  = get(KIT_COLORS,   cfg.kitId       || 'k1');
-    const body = get(BODY_TYPES,   cfg.bodyId      || 'b2');
-    const num  = cfg.number || 10;
+  let cfg = { skinId:'s2', hairId:'hs2', hairColorId:'h1', eyeId:'e1', kitId:'k1', bodyId:'b2', number:10 };
 
-    const cx = 100; // center x
-    const s  = body.sw; // shoulder half-width
-    const lw = body.leg; // leg half-width
+  function g(arr, id) { return arr.find(x => x.id === id) || arr[0]; }
+  function skin()      { return g(SKIN,        cfg.skinId); }
+  function hairStyle() { return HAIR[cfg.hairId] || HAIR.hs2; }
+  function hairColor() { return g(HAIR_COLORS, cfg.hairColorId); }
+  function eyes()      { return g(EYE_COLORS,  cfg.eyeId); }
+  function kit()       { return g(KIT_COLORS,  cfg.kitId); }
+  function body()      { return g(BODY,        cfg.bodyId); }
 
-    // Positions
-    const headY   = 28;
-    const neckY   = 60;
-    const shouldY = 74;
-    const torsoB  = 136;
-    const hipY    = 142;
-    const kneeY   = 196;
-    const footY   = 245;
+  // ── Full SVG renderer ─────────────────────────────────────
+  function renderSVG(c) {
+    c = c || cfg;
+    const sk = g(SKIN,        c.skinId      || 's2');
+    const hS = HAIR[c.hairId] || HAIR.hs2;
+    const hC = g(HAIR_COLORS, c.hairColorId || 'h1');
+    const ey = g(EYE_COLORS,  c.eyeId       || 'e1');
+    const kt = g(KIT_COLORS,  c.kitId       || 'k1');
+    const bd = g(BODY,        c.bodyId      || 'b2');
+    const num = c.number || 10;
+    const s   = bd.sw;
+    const lw  = bd.lw;
 
+    const cx   = 100;
+    // Key Y positions (more athletic proportions)
+    const headCY = 30;    // head center
+    const headRY = 22;    // head vert radius
+    const headRX = 18;    // head horiz radius
+    const neckY  = headCY + headRY;  // ~52
+    const shlY   = neckY + 16;       // ~68 (shoulder top)
+    const torsoB = shlY + 64;        // ~132 (waist)
+    const hipY   = torsoB + 6;       // ~138
+    const kneeY  = hipY + 52;        // ~190
+    const ankleY = kneeY + 44;       // ~234
+    const footY  = ankleY + 10;      // ~244
+
+    const uid = Math.random().toString(36).slice(2,8);
+
+    let svg = '<svg viewBox="0 0 200 265" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">';
+
+    // ── DEFS ─────────────────────────────────────────────────
+    svg += '<defs>';
+    // Skin gradient (radial, light on top-left)
+    svg += '<radialGradient id="sg'+uid+'" cx="40%" cy="30%" r="65%">'
+      + '<stop offset="0%" stop-color="'+sk.hi+'"/>'
+      + '<stop offset="55%" stop-color="'+sk.base+'"/>'
+      + '<stop offset="100%" stop-color="'+sk.shadow+'"/>'
+      + '</radialGradient>';
+    // Kit gradient
+    svg += '<linearGradient id="kg'+uid+'" x1="0%" y1="0%" x2="100%" y2="100%">'
+      + '<stop offset="0%" stop-color="'+kt.p+'"/>'
+      + '<stop offset="100%" stop-color="'+kt.s+'"/>'
+      + '</linearGradient>';
+    // Short gradient
+    svg += '<linearGradient id="shg'+uid+'" x1="0%" y1="0%" x2="0%" y2="100%">'
+      + '<stop offset="0%" stop-color="'+kt.s+'"/>'
+      + '<stop offset="100%" stop-color="'+kt.p+'"/>'
+      + '</linearGradient>';
+    // Muscle highlight on torso
+    svg += '<radialGradient id="mhl'+uid+'" cx="40%" cy="20%" r="70%">'
+      + '<stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>'
+      + '<stop offset="100%" stop-color="rgba(0,0,0,0)"/>'
+      + '</radialGradient>';
+    // Drop shadow filter
+    svg += '<filter id="ds'+uid+'" x="-15%" y="-15%" width="130%" height="130%">'
+      + '<feDropShadow dx="1" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.4)"/>'
+      + '</filter>';
+    svg += '</defs>';
+
+    // ── BOOTS ─────────────────────────────────────────────────
+    // Left boot
+    svg += '<path d="M'+(cx-lw*2-4)+' '+footY+' L'+(cx-4)+' '+footY+' L'+(cx-4)+' '+(footY-10)+' L'+(cx-lw-2)+' '+(footY-10)+' Z" fill="#1a1a1a" rx="3"/>';
+    svg += '<ellipse cx="'+(cx-lw-8)+'" cy="'+(footY+3)+'" rx="'+(lw+5)+'" ry="5" fill="#111"/>';
+    svg += '<line x1="'+(cx-lw*2-2)+'" y1="'+(footY-4)+'" x2="'+(cx-5)+'" y2="'+(footY-4)+'" stroke="#333" stroke-width="1.5" opacity="0.5"/>';
+    // Boot stripe
+    svg += '<line x1="'+(cx-lw*2)+'" y1="'+(footY-7)+'" x2="'+(cx-6)+'" y2="'+(footY-7)+'" stroke="'+kt.t+'" stroke-width="1" opacity="0.6"/>';
+    // Right boot
+    svg += '<path d="M'+(cx+4)+' '+footY+' L'+(cx+lw*2+4)+' '+footY+' L'+(cx+lw*2+4)+' '+(footY-10)+' L'+(cx+lw+2)+' '+(footY-10)+' L'+(cx+4)+' '+(footY-10)+' Z" fill="#1a1a1a"/>';
+    svg += '<ellipse cx="'+(cx+lw+8)+'" cy="'+(footY+3)+'" rx="'+(lw+5)+'" ry="5" fill="#111"/>';
+    svg += '<line x1="'+(cx+5)+'" y1="'+(footY-4)+'" x2="'+(cx+lw*2+2)+'" y2="'+(footY-4)+'" stroke="#333" stroke-width="1.5" opacity="0.5"/>';
+    svg += '<line x1="'+(cx+6)+'" y1="'+(footY-7)+'" x2="'+(cx+lw*2)+'" y2="'+(footY-7)+'" stroke="'+kt.t+'" stroke-width="1" opacity="0.6"/>';
+
+    // ── SOCKS ─────────────────────────────────────────────────
+    const sockTop = ankleY - 8;
+    // Left sock (white base + kit color cuff)
+    svg += '<rect x="'+(cx-lw*2-2)+'" y="'+sockTop+'" width="'+(lw*2+2)+'" height="'+(footY-sockTop)+'" rx="4" fill="#EEEEEE"/>';
+    svg += '<rect x="'+(cx-lw*2-2)+'" y="'+sockTop+'" width="'+(lw*2+2)+'" height="7" rx="3" fill="'+kt.p+'"/>';
+    svg += '<rect x="'+(cx-lw*2-2)+'" y="'+(sockTop+7)+'" width="'+(lw*2+2)+'" height="3" rx="1" fill="'+kt.t+'" opacity="0.7"/>';
+    // Right sock
+    svg += '<rect x="'+(cx+2)+'" y="'+sockTop+'" width="'+(lw*2+2)+'" height="'+(footY-sockTop)+'" rx="4" fill="#EEEEEE"/>';
+    svg += '<rect x="'+(cx+2)+'" y="'+sockTop+'" width="'+(lw*2+2)+'" height="7" rx="3" fill="'+kt.p+'"/>';
+    svg += '<rect x="'+(cx+2)+'" y="'+(sockTop+7)+'" width="'+(lw*2+2)+'" height="3" rx="1" fill="'+kt.t+'" opacity="0.7"/>';
+
+    // ── SHIN PADS hint ────────────────────────────────────────
+    svg += '<rect x="'+(cx-lw-9)+'" y="'+(sockTop-20)+'" width="'+(lw+4)+'" height="18" rx="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>';
+    svg += '<rect x="'+(cx+5)+'" y="'+(sockTop-20)+'" width="'+(lw+4)+'" height="18" rx="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>';
+
+    // ── THIGHS / CALVES (skin, muscular) ─────────────────────
+    // Left leg — thigh tapering to knee, calf
+    svg += '<path d="M'+(cx-lw-2)+' '+(hipY+4)+' Q'+(cx-lw-6)+' '+(kneeY-10)+' '+(cx-lw-3)+' '+kneeY+' Q'+(cx-lw+2)+' '+(kneeY+8)+' '+(cx-lw)+' '+(sockTop-22)+'Z" fill="url(#sg'+uid+')" stroke="none"/>';
+    // Right leg — thigh
+    svg += '<path d="M'+(cx+lw+2)+' '+(hipY+4)+' Q'+(cx+lw+6)+' '+(kneeY-10)+' '+(cx+lw+3)+' '+kneeY+' Q'+(cx+lw-2)+' '+(kneeY+8)+' '+(cx+lw)+' '+(sockTop-22)+'Z" fill="url(#sg'+uid+')" stroke="none"/>';
+    // Kneecaps
+    svg += '<ellipse cx="'+(cx-lw-2)+'" cy="'+kneeY+'" rx="'+(lw)+'" ry="7" fill="'+sk.shadow+'" opacity="0.45"/>';
+    svg += '<ellipse cx="'+(cx+lw+2)+'" cy="'+kneeY+'" rx="'+(lw)+'" ry="7" fill="'+sk.shadow+'" opacity="0.45"/>';
+
+    // ── SHORTS ────────────────────────────────────────────────
+    svg += '<path d="M'+(cx-s+4)+' '+torsoB+' L'+(cx-s-4)+' '+(hipY+26)+' Q'+(cx-2)+' '+(hipY+32)+' '+(cx+2)+' '+(hipY+32)+' L'+(cx+s+4)+' '+(hipY+26)+' L'+(cx+s-4)+' '+torsoB+'Z" fill="url(#shg'+uid+')" filter="url(#ds'+uid+')" />';
+    // Waistband
+    svg += '<rect x="'+(cx-s+4)+'" y="'+(torsoB-4)+'" width="'+(s*2-8)+'" height="8" rx="4" fill="'+kt.t+'" opacity="0.55"/>';
+    // Shorts seam
+    svg += '<line x1="'+cx+'" y1="'+(torsoB)+'" x2="'+cx+'" y2="'+(hipY+30)+'" stroke="'+kt.s+'" stroke-width="1.2" opacity="0.35"/>';
+
+    // ── LEFT ARM ──────────────────────────────────────────────
+    // Upper arm (skin)
+    svg += '<path d="M'+(cx-s+2)+' '+(shlY+6)+' Q'+(cx-s-16)+' '+(shlY+30)+' '+(cx-s-10)+' '+(shlY+56)+'" stroke="url(#sg'+uid+')" stroke-width="'+(s*0.78)+'" fill="none" stroke-linecap="round"/>';
+    // Sleeve (kit color, covers upper arm)
+    svg += '<path d="M'+(cx-s+4)+' '+(shlY+4)+' Q'+(cx-s-10)+' '+(shlY+18)+' '+(cx-s-7)+' '+(shlY+28)+'" stroke="'+kt.p+'" stroke-width="'+(s*0.85)+'" fill="none" stroke-linecap="round"/>';
+    // Sleeve cuff ring
+    svg += '<ellipse cx="'+(cx-s-8)+'" cy="'+(shlY+30)+'" rx="7" ry="3.5" fill="'+kt.t+'" opacity="0.6"/>';
+    // Forearm skin
+    svg += '<path d="M'+(cx-s-8)+' '+(shlY+30)+' Q'+(cx-s-14)+' '+(shlY+46)+' '+(cx-s-10)+' '+(shlY+58)+'" stroke="url(#sg'+uid+')" stroke-width="'+(s*0.6)+'" fill="none" stroke-linecap="round"/>';
+
+    // ── RIGHT ARM ─────────────────────────────────────────────
+    svg += '<path d="M'+(cx+s-2)+' '+(shlY+6)+' Q'+(cx+s+16)+' '+(shlY+30)+' '+(cx+s+10)+' '+(shlY+56)+'" stroke="url(#sg'+uid+')" stroke-width="'+(s*0.78)+'" fill="none" stroke-linecap="round"/>';
+    svg += '<path d="M'+(cx+s-4)+' '+(shlY+4)+' Q'+(cx+s+10)+' '+(shlY+18)+' '+(cx+s+7)+' '+(shlY+28)+'" stroke="'+kt.p+'" stroke-width="'+(s*0.85)+'" fill="none" stroke-linecap="round"/>';
+    svg += '<ellipse cx="'+(cx+s+8)+'" cy="'+(shlY+30)+'" rx="7" ry="3.5" fill="'+kt.t+'" opacity="0.6"/>';
+    svg += '<path d="M'+(cx+s+8)+' '+(shlY+30)+' Q'+(cx+s+14)+' '+(shlY+46)+' '+(cx+s+10)+' '+(shlY+58)+'" stroke="url(#sg'+uid+')" stroke-width="'+(s*0.6)+'" fill="none" stroke-linecap="round"/>';
+
+    // ── HANDS ─────────────────────────────────────────────────
+    svg += '<ellipse cx="'+(cx-s-10)+'" cy="'+(shlY+62)+'" rx="7" ry="5.5" fill="'+sk.base+'"/>';
+    svg += '<ellipse cx="'+(cx+s+10)+'" cy="'+(shlY+62)+'" rx="7" ry="5.5" fill="'+sk.base+'"/>';
+    // Knuckle lines
+    svg += '<line x1="'+(cx-s-14)+'" y1="'+(shlY+60)+'" x2="'+(cx-s-8)+'" y2="'+(shlY+60)+'" stroke="'+sk.shadow+'" stroke-width="0.7" opacity="0.5"/>';
+    svg += '<line x1="'+(cx+s+6)+'" y1="'+(shlY+60)+'" x2="'+(cx+s+12)+'" y2="'+(shlY+60)+'" stroke="'+sk.shadow+'" stroke-width="0.7" opacity="0.5"/>';
+
+    // ── TORSO / JERSEY ────────────────────────────────────────
+    svg += '<path d="M'+(cx-s+4)+' '+(shlY+4)+' Q'+(cx-s-2)+' '+shlY+' '+(cx-8)+' '+(neckY+2)
+      + ' L'+(cx-6)+' '+torsoB+' L'+(cx+6)+' '+torsoB
+      + ' L'+(cx+8)+' '+(neckY+2)+' Q'+(cx+s+2)+' '+shlY+' '+(cx+s-4)+' '+(shlY+4)+'Z"'
+      + ' fill="url(#kg'+uid+')" filter="url(#ds'+uid+')"/>';
+    // Muscle highlight overlay
+    svg += '<path d="M'+(cx-s+6)+' '+(shlY+6)+' Q'+(cx-s)+' '+shlY+' '+(cx-6)+' '+(neckY+4)+' L'+(cx-4)+' '+(torsoB-20)+' L'+(cx+4)+' '+(torsoB-20)+' L'+(cx+6)+' '+(neckY+4)+' Q'+(cx+s)+' '+shlY+' '+(cx+s-6)+' '+(shlY+6)+'Z" fill="url(#mhl'+uid+')"/>';
+    // Jersey side panels (darker)
+    svg += '<path d="M'+(cx-8)+' '+(neckY+2)+' L'+(cx-6)+' '+torsoB+' L'+(cx-s+4)+' '+torsoB+' L'+(cx-s+4)+' '+(shlY+4)+'Z" fill="'+kt.s+'" opacity="0.3"/>';
+    svg += '<path d="M'+(cx+8)+' '+(neckY+2)+' L'+(cx+6)+' '+torsoB+' L'+(cx+s-4)+' '+torsoB+' L'+(cx+s-4)+' '+(shlY+4)+'Z" fill="'+kt.s+'" opacity="0.3"/>';
+    // Jersey number
+    svg += '<text x="'+cx+'" y="'+(torsoB-16)+'" text-anchor="middle" fill="'+kt.t+'" font-size="20" font-weight="900" font-family="Arial,sans-serif" opacity="0.92">'+num+'</text>';
+    // Collar — V neck
+    svg += '<path d="M'+(cx-10)+' '+(neckY+2)+' Q'+(cx-5)+' '+(neckY-2)+' '+cx+' '+neckY+' Q'+(cx+5)+' '+(neckY-2)+' '+(cx+10)+' '+(neckY+2)+'" fill="none" stroke="'+kt.t+'" stroke-width="3" stroke-linecap="round" opacity="0.8"/>';
+
+    // ── NECK ──────────────────────────────────────────────────
+    svg += '<rect x="'+(cx-7)+'" y="'+(neckY-4)+'" width="14" height="18" rx="7" fill="url(#sg'+uid+')"/>';
+    // Neck shadow
+    svg += '<rect x="'+(cx-4)+'" y="'+(neckY-2)+'" width="8" height="4" rx="2" fill="'+sk.shadow+'" opacity="0.3"/>';
+
+    // ── HEAD ──────────────────────────────────────────────────
+    // Head base (slightly non-circular: wider cheekbones)
+    svg += '<ellipse cx="'+cx+'" cy="'+headCY+'" rx="'+headRX+'" ry="'+headRY+'" fill="url(#sg'+uid+')" filter="url(#ds'+uid+')"/>';
+
+    // ── EARS ──────────────────────────────────────────────────
+    svg += '<ellipse cx="'+(cx-headRX)+'" cy="'+(headCY+3)+'" rx="5" ry="7" fill="'+sk.base+'"/>';
+    svg += '<ellipse cx="'+(cx-headRX)+'" cy="'+(headCY+3)+'" rx="3" ry="5" fill="'+sk.shadow+'" opacity="0.4"/>';
+    svg += '<ellipse cx="'+(cx+headRX)+'" cy="'+(headCY+3)+'" rx="5" ry="7" fill="'+sk.base+'"/>';
+    svg += '<ellipse cx="'+(cx+headRX)+'" cy="'+(headCY+3)+'" rx="3" ry="5" fill="'+sk.shadow+'" opacity="0.4"/>';
+
+    // ── HAIR (drawn over head/ears) ───────────────────────────
+    svg += hS.r(hC.c, cx, headCY - headRY + 2);
+
+    // ── EYEBROWS ──────────────────────────────────────────────
+    // Left brow (slightly arched)
+    svg += '<path d="M'+(cx-16)+' '+(headCY-9)+' Q'+(cx-9)+' '+(headCY-13)+' '+(cx-2)+' '+(headCY-10)+'" stroke="'+hC.c+'" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    // Right brow
+    svg += '<path d="M'+(cx+16)+' '+(headCY-9)+' Q'+(cx+9)+' '+(headCY-13)+' '+(cx+2)+' '+(headCY-10)+'" stroke="'+hC.c+'" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+
+    // ── EYES ──────────────────────────────────────────────────
+    // Eye whites (slightly almond-shaped)
+    svg += '<path d="M'+(cx-14)+' '+headCY+' Q'+(cx-8)+' '+(headCY-5)+' '+(cx-2)+' '+headCY+' Q'+(cx-8)+' '+(headCY+4)+' '+(cx-14)+' '+headCY+'Z" fill="white"/>';
+    svg += '<path d="M'+(cx+14)+' '+headCY+' Q'+(cx+8)+' '+(headCY-5)+' '+(cx+2)+' '+headCY+' Q'+(cx+8)+' '+(headCY+4)+' '+(cx+14)+' '+headCY+'Z" fill="white"/>';
+    // Iris
+    svg += '<circle cx="'+(cx-8)+'" cy="'+headCY+'" r="3.5" fill="'+ey.iris+'"/>';
+    svg += '<circle cx="'+(cx+8)+'" cy="'+headCY+'" r="3.5" fill="'+ey.iris+'"/>';
+    // Pupil
+    svg += '<circle cx="'+(cx-8)+'" cy="'+headCY+'" r="1.8" fill="#050505"/>';
+    svg += '<circle cx="'+(cx+8)+'" cy="'+headCY+'" r="1.8" fill="#050505"/>';
+    // Eye shine
+    svg += '<circle cx="'+(cx-6)+'" cy="'+(headCY-1.5)+'" r="1" fill="white" opacity="0.85"/>';
+    svg += '<circle cx="'+(cx+10)+'" cy="'+(headCY-1.5)+'" r="1" fill="white" opacity="0.85"/>';
+    // Upper eyelid crease
+    svg += '<path d="M'+(cx-14)+' '+(headCY-1)+' Q'+(cx-8)+' '+(headCY-5)+' '+(cx-2)+' '+(headCY-1)+'" stroke="'+sk.shadow+'" stroke-width="1" fill="none" opacity="0.45"/>';
+    svg += '<path d="M'+(cx+14)+' '+(headCY-1)+' Q'+(cx+8)+' '+(headCY-5)+' '+(cx+2)+' '+(headCY-1)+'" stroke="'+sk.shadow+'" stroke-width="1" fill="none" opacity="0.45"/>';
+    // Eyelashes (top)
+    svg += '<path d="M'+(cx-14)+' '+(headCY-1)+' Q'+(cx-8)+' '+(headCY-6)+' '+(cx-2)+' '+(headCY-1)+'" stroke="#111" stroke-width="0.8" fill="none" opacity="0.6"/>';
+    svg += '<path d="M'+(cx+14)+' '+(headCY-1)+' Q'+(cx+8)+' '+(headCY-6)+' '+(cx+2)+' '+(headCY-1)+'" stroke="#111" stroke-width="0.8" fill="none" opacity="0.6"/>';
+
+    // ── NOSE ──────────────────────────────────────────────────
+    // Bridge + nostrils
+    svg += '<path d="M'+(cx-1)+' '+(headCY+3)+' Q'+(cx-4)+' '+(headCY+9)+' '+(cx-5)+' '+(headCY+12)+'" stroke="'+sk.shadow+'" stroke-width="1.2" fill="none" opacity="0.4" stroke-linecap="round"/>';
+    svg += '<path d="M'+(cx+1)+' '+(headCY+3)+' Q'+(cx+4)+' '+(headCY+9)+' '+(cx+5)+' '+(headCY+12)+'" stroke="'+sk.shadow+'" stroke-width="1.2" fill="none" opacity="0.4" stroke-linecap="round"/>';
+    // Nostril hints
+    svg += '<ellipse cx="'+(cx-5)+'" cy="'+(headCY+13)+'" rx="3" ry="2" fill="'+sk.shadow+'" opacity="0.25"/>';
+    svg += '<ellipse cx="'+(cx+5)+'" cy="'+(headCY+13)+'" rx="3" ry="2" fill="'+sk.shadow+'" opacity="0.25"/>';
+
+    // ── MOUTH ─────────────────────────────────────────────────
+    // Upper lip curve
+    svg += '<path d="M'+(cx-7)+' '+(headCY+17)+' Q'+(cx-3)+' '+(headCY+15)+' '+cx+' '+(headCY+16)+' Q'+(cx+3)+' '+(headCY+15)+' '+(cx+7)+' '+(headCY+17)+'" fill="'+sk.lip+'" stroke="none"/>';
+    // Lower lip
+    svg += '<path d="M'+(cx-7)+' '+(headCY+17)+' Q'+cx+' '+(headCY+22)+' '+(cx+7)+' '+(headCY+17)+'" fill="'+sk.base+'" stroke="none" opacity="0.7"/>';
+    // Lip line
+    svg += '<path d="M'+(cx-7)+' '+(headCY+17)+' Q'+cx+' '+(headCY+20)+' '+(cx+7)+' '+(headCY+17)+'" stroke="'+sk.shadow+'" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.6"/>';
+
+    // ── CHIN SHADOW ───────────────────────────────────────────
+    svg += '<ellipse cx="'+cx+'" cy="'+(headCY+headRY-2)+'" rx="11" ry="3" fill="'+sk.shadow+'" opacity="0.15"/>';
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  // ── Mini avatar (sidebar, 100px-ish) ─────────────────────
+  function getMiniSVG(c) {
+    c = c || cfg;
+    const sk = g(SKIN,        c.skinId      || 's2');
+    const hS = HAIR[c.hairId] || HAIR.hs2;
+    const hC = g(HAIR_COLORS, c.hairColorId || 'h1');
+    const ey = g(EYE_COLORS,  c.eyeId       || 'e1');
+    const kt = g(KIT_COLORS,  c.kitId       || 'k1');
+    const num = c.number || 10;
     const uid = Math.random().toString(36).slice(2, 7);
 
-    return `<svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
-  <defs>
-    <radialGradient id="skinGrad${uid}" cx="45%" cy="35%" r="60%">
-      <stop offset="0%"   stop-color="${skin.highlight}"/>
-      <stop offset="60%"  stop-color="${skin.base}"/>
-      <stop offset="100%" stop-color="${skin.shadow}"/>
-    </radialGradient>
-    <radialGradient id="faceGrad${uid}" cx="45%" cy="30%" r="65%">
-      <stop offset="0%"   stop-color="${skin.highlight}"/>
-      <stop offset="55%"  stop-color="${skin.base}"/>
-      <stop offset="100%" stop-color="${skin.shadow}"/>
-    </radialGradient>
-    <linearGradient id="kitGrad${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"   stop-color="${kit.primary}"/>
-      <stop offset="100%" stop-color="${kit.secondary}"/>
-    </linearGradient>
-    <linearGradient id="shortGrad${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%"   stop-color="${kit.secondary}"/>
-      <stop offset="100%" stop-color="${kit.primary}"/>
-    </linearGradient>
-    <filter id="shadow${uid}" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.35)"/>
-    </filter>
-  </defs>
-
-  <!-- BOOTS (left) -->
-  <ellipse cx="${cx-lw-2}" cy="${footY+6}" rx="${lw+1}" ry="5" fill="#1a1a1a"/>
-  <rect x="${cx-lw*2-4}" y="${footY-2}" width="${lw*2+4}" height="10" rx="5" fill="#222"/>
-  <line x1="${cx-lw-2}" y1="${footY+2}" x2="${cx-lw-6}" y2="${footY+2}" stroke="#fff" stroke-width="1" opacity="0.3"/>
-
-  <!-- BOOTS (right) -->
-  <ellipse cx="${cx+lw+2}" cy="${footY+6}" rx="${lw+1}" ry="5" fill="#1a1a1a"/>
-  <rect x="${cx+2}" y="${footY-2}" width="${lw*2+4}" height="10" rx="5" fill="#222"/>
-  <line x1="${cx+lw+2}" y1="${footY+2}" x2="${cx+lw+6}" y2="${footY+2}" stroke="#fff" stroke-width="1" opacity="0.3"/>
-
-  <!-- SOCKS (left) -->
-  <rect x="${cx-lw*2-2}" y="${kneeY+20}" width="${lw*2+2}" height="${footY-kneeY-20}" rx="3" fill="#EEEEEE"/>
-  <rect x="${cx-lw*2-2}" y="${kneeY+20}" width="${lw*2+2}" height="6" rx="2" fill="${kit.trim}"/>
-
-  <!-- SOCKS (right) -->
-  <rect x="${cx+2}" y="${kneeY+20}" width="${lw*2+2}" height="${footY-kneeY-20}" rx="3" fill="#EEEEEE"/>
-  <rect x="${cx+2}" y="${kneeY+20}" width="${lw*2+2}" height="6" rx="2" fill="${kit.trim}"/>
-
-  <!-- LEGS skin (left) -->
-  <path d="M${cx-lw} ${hipY+4} Q${cx-lw-4} ${kneeY-4} ${cx-lw-2} ${kneeY+20}" 
-        stroke="url(#skinGrad${uid})" stroke-width="${lw*1.8}" fill="none" stroke-linecap="round"/>
-  <ellipse cx="${cx-lw-1}" cy="${kneeY}" rx="${lw+1}" ry="7" fill="${skin.shadow}" opacity="0.4"/>
-
-  <!-- LEGS skin (right) -->
-  <path d="M${cx+lw} ${hipY+4} Q${cx+lw+4} ${kneeY-4} ${cx+lw+2} ${kneeY+20}" 
-        stroke="url(#skinGrad${uid})" stroke-width="${lw*1.8}" fill="none" stroke-linecap="round"/>
-  <ellipse cx="${cx+lw+1}" cy="${kneeY}" rx="${lw+1}" ry="7" fill="${skin.shadow}" opacity="0.4"/>
-
-  <!-- SHORTS -->
-  <path d="M${cx-s+4} ${torsoB} L${cx-s-2} ${hipY+24} Q${cx-2} ${hipY+28} ${cx+2} ${hipY+28} Q${cx+s+2} ${hipY+24} ${cx+s-4} ${torsoB} Z" 
-        fill="url(#shortGrad${uid})" filter="url(#shadow${uid})"/>
-  <!-- Shorts waistband -->
-  <rect x="${cx-s+4}" y="${torsoB-2}" width="${(s-4)*2}" height="7" rx="3" fill="${kit.trim}" opacity="0.7"/>
-  <!-- Shorts inner line -->
-  <line x1="${cx}" y1="${torsoB+5}" x2="${cx}" y2="${hipY+26}" stroke="${kit.secondary}" stroke-width="1.5" opacity="0.4"/>
-
-  <!-- ARMS (left) -->
-  <path d="M${cx-s+4} ${shouldY+8} Q${cx-s-12} ${shouldY+30} ${cx-s-8} ${shouldY+62}" 
-        stroke="url(#skinGrad${uid})" stroke-width="${s*0.75}" fill="none" stroke-linecap="round"/>
-  <!-- Sleeve (left) -->
-  <path d="M${cx-s+4} ${shouldY+4} Q${cx-s-6} ${shouldY+14} ${cx-s-4} ${shouldY+22}"
-        stroke="${kit.primary}" stroke-width="${s*0.82}" fill="none" stroke-linecap="round"/>
-  <!-- Sleeve cuff (left) -->
-  <ellipse cx="${cx-s-6}" cy="${shouldY+22}" rx="5" ry="3" fill="${kit.trim}" opacity="0.7"/>
-
-  <!-- ARMS (right) -->
-  <path d="M${cx+s-4} ${shouldY+8} Q${cx+s+12} ${shouldY+30} ${cx+s+8} ${shouldY+62}" 
-        stroke="url(#skinGrad${uid})" stroke-width="${s*0.75}" fill="none" stroke-linecap="round"/>
-  <!-- Sleeve (right) -->
-  <path d="M${cx+s-4} ${shouldY+4} Q${cx+s+6} ${shouldY+14} ${cx+s+4} ${shouldY+22}"
-        stroke="${kit.primary}" stroke-width="${s*0.82}" fill="none" stroke-linecap="round"/>
-  <!-- Sleeve cuff (right) -->
-  <ellipse cx="${cx+s+6}" cy="${shouldY+22}" rx="5" ry="3" fill="${kit.trim}" opacity="0.7"/>
-
-  <!-- HANDS -->
-  <ellipse cx="${cx-s-8}" cy="${shouldY+65}" rx="6" ry="5" fill="${skin.base}"/>
-  <ellipse cx="${cx+s+8}" cy="${shouldY+65}" rx="6" ry="5" fill="${skin.base}"/>
-
-  <!-- TORSO / JERSEY -->
-  <path d="M${cx-s+4} ${shouldY+4} Q${cx-s-2} ${shouldY} ${cx-8} ${neckY+2} 
-           L${cx-6} ${torsoB} L${cx+6} ${torsoB} 
-           L${cx+8} ${neckY+2} Q${cx+s+2} ${shouldY} ${cx+s-4} ${shouldY+4} Z" 
-        fill="url(#kitGrad${uid})" filter="url(#shadow${uid})"/>
-
-  <!-- Jersey chest stripe / detail -->
-  <path d="M${cx-6} ${neckY+4} L${cx-8} ${torsoB}" stroke="${kit.trim}" stroke-width="2" opacity="0.3" stroke-linecap="round"/>
-  <path d="M${cx+6} ${neckY+4} L${cx+8} ${torsoB}" stroke="${kit.trim}" stroke-width="2" opacity="0.3" stroke-linecap="round"/>
-
-  <!-- Jersey number -->
-  <text x="${cx}" y="${torsoB-20}" text-anchor="middle" fill="${kit.trim}" 
-        font-size="18" font-weight="900" font-family="Arial" opacity="0.9">${num}</text>
-
-  <!-- Jersey collar -->
-  <path d="M${cx-10} ${neckY+2} Q${cx-5} ${neckY-4} ${cx} ${neckY-2} Q${cx+5} ${neckY-4} ${cx+10} ${neckY+2}" 
-        fill="none" stroke="${kit.trim}" stroke-width="2.5" stroke-linecap="round"/>
-
-  <!-- NECK -->
-  <rect x="${cx-7}" y="${neckY-2}" width="14" height="16" rx="7" fill="url(#skinGrad${uid})"/>
-
-  <!-- HEAD base (oval) -->
-  <ellipse cx="${cx}" cy="${headY}" rx="22" ry="26" fill="url(#faceGrad${uid})" filter="url(#shadow${uid})"/>
-
-  <!-- EARS -->
-  <ellipse cx="${cx-21}" cy="${headY+4}" rx="5" ry="7" fill="${skin.base}"/>
-  <ellipse cx="${cx-21}" cy="${headY+4}" rx="3" ry="5" fill="${skin.shadow}" opacity="0.5"/>
-  <ellipse cx="${cx+21}" cy="${headY+4}" rx="5" ry="7" fill="${skin.base}"/>
-  <ellipse cx="${cx+21}" cy="${headY+4}" rx="3" ry="5" fill="${skin.shadow}" opacity="0.5"/>
-
-  <!-- HAIR -->
-  ${hSt.render(hCol.color, cx, headY)}
-
-  <!-- EYEBROWS -->
-  <path d="M${cx-15} ${headY-10} Q${cx-8} ${headY-14} ${cx-2} ${headY-11}" 
-        stroke="${hCol.color}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-  <path d="M${cx+15} ${headY-10} Q${cx+8} ${headY-14} ${cx+2} ${headY-11}" 
-        stroke="${hCol.color}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-
-  <!-- EYES white -->
-  <ellipse cx="${cx-8}" cy="${headY}" rx="6.5" ry="4.5" fill="white"/>
-  <ellipse cx="${cx+8}" cy="${headY}" rx="6.5" ry="4.5" fill="white"/>
-  <!-- Iris -->
-  <circle cx="${cx-8}" cy="${headY}" r="3.2" fill="${eye.iris}"/>
-  <circle cx="${cx+8}" cy="${headY}" r="3.2" fill="${eye.iris}"/>
-  <!-- Pupil -->
-  <circle cx="${cx-8}"   cy="${headY}"   r="1.6" fill="#080808"/>
-  <circle cx="${cx+8}"   cy="${headY}"   r="1.6" fill="#080808"/>
-  <!-- Eye shine -->
-  <circle cx="${cx-6.5}" cy="${headY-1.5}" r="1" fill="white" opacity="0.8"/>
-  <circle cx="${cx+9.5}" cy="${headY-1.5}" r="1" fill="white" opacity="0.8"/>
-  <!-- Eyelid top line -->
-  <path d="M${cx-14.5} ${headY-2} Q${cx-8} ${headY-6} ${cx-1.5} ${headY-2}" 
-        stroke="${skin.shadow}" stroke-width="1" fill="none" opacity="0.5"/>
-  <path d="M${cx+14.5} ${headY-2} Q${cx+8} ${headY-6} ${cx+1.5} ${headY-2}" 
-        stroke="${skin.shadow}" stroke-width="1" fill="none" opacity="0.5"/>
-
-  <!-- NOSE -->
-  <path d="M${cx} ${headY+2} Q${cx-3} ${headY+10} ${cx-5} ${headY+13} Q${cx} ${headY+15} ${cx+5} ${headY+13} Q${cx+3} ${headY+10} ${cx} ${headY+2}" 
-        fill="${skin.shadow}" opacity="0.3"/>
-
-  <!-- MOUTH -->
-  <path d="M${cx-7} ${headY+18} Q${cx} ${headY+23} ${cx+7} ${headY+18}" 
-        stroke="${skin.shadow}" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.7"/>
-  <!-- Smile line -->
-  <path d="M${cx-5} ${headY+18} Q${cx} ${headY+21} ${cx+5} ${headY+18}" 
-        stroke="${skin.base}" stroke-width="0.8" fill="none" opacity="0.4"/>
-
-  <!-- Chin shadow -->
-  <ellipse cx="${cx}" cy="${headY+24}" rx="12" ry="4" fill="${skin.shadow}" opacity="0.18"/>
-</svg>`;
+    return '<svg viewBox="0 0 100 105" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">'
+      + '<defs>'
+      + '<radialGradient id="msk'+uid+'" cx="42%" cy="32%" r="62%"><stop offset="0%" stop-color="'+sk.hi+'"/><stop offset="100%" stop-color="'+sk.shadow+'"/></radialGradient>'
+      + '</defs>'
+      // Body (jersey)
+      + '<rect x="22" y="68" width="56" height="32" rx="12" fill="'+kt.p+'"/>'
+      + '<text x="50" y="90" text-anchor="middle" fill="'+kt.t+'" font-size="10" font-weight="900" font-family="Arial">'+num+'</text>'
+      // Collar
+      + '<path d="M40 69 Q50 65 60 69" fill="none" stroke="'+kt.t+'" stroke-width="2" opacity="0.7"/>'
+      // Arms
+      + '<rect x="14" y="70" width="10" height="24" rx="5" fill="'+kt.p+'"/>'
+      + '<rect x="76" y="70" width="10" height="24" rx="5" fill="'+kt.p+'"/>'
+      // Neck
+      + '<rect x="43" y="58" width="14" height="14" rx="7" fill="'+sk.base+'"/>'
+      // Head
+      + '<ellipse cx="50" cy="42" rx="20" ry="22" fill="url(#msk'+uid+')" style="filter:drop-shadow(0 3px 6px rgba(0,0,0,0.4))"/>'
+      // Ears
+      + '<ellipse cx="30" cy="44" rx="5" ry="7" fill="'+sk.base+'"/>'
+      + '<ellipse cx="70" cy="44" rx="5" ry="7" fill="'+sk.base+'"/>'
+      // Hair
+      + hS.r(hC.c, 50, 22)
+      // Brows
+      + '<path d="M35 36 Q42 32 48 35" stroke="'+hC.c+'" stroke-width="2" fill="none" stroke-linecap="round"/>'
+      + '<path d="M65 36 Q58 32 52 35" stroke="'+hC.c+'" stroke-width="2" fill="none" stroke-linecap="round"/>'
+      // Eyes
+      + '<path d="M37 42 Q42 38 48 42 Q42 46 37 42Z" fill="white"/>'
+      + '<path d="M63 42 Q58 38 52 42 Q58 46 63 42Z" fill="white"/>'
+      + '<circle cx="42" cy="42" r="3" fill="'+ey.iris+'"/>'
+      + '<circle cx="58" cy="42" r="3" fill="'+ey.iris+'"/>'
+      + '<circle cx="42" cy="42" r="1.5" fill="#111"/>'
+      + '<circle cx="58" cy="42" r="1.5" fill="#111"/>'
+      + '<circle cx="43.5" cy="40.5" r="0.8" fill="white" opacity="0.8"/>'
+      + '<circle cx="59.5" cy="40.5" r="0.8" fill="white" opacity="0.8"/>'
+      // Nose
+      + '<path d="M48 47 Q46 52 44 53 Q50 55 56 53 Q54 52 52 47" fill="'+sk.shadow+'" opacity="0.2"/>'
+      // Mouth
+      + '<path d="M44 57 Q50 61 56 57" stroke="'+sk.shadow+'" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.6"/>'
+      + '</svg>';
   }
 
-  // ── Mini avatar (for sidebar/profile) ────────────────────
-  function getMiniSVG(cfg = {}) {
-    const s    = get(SKIN_TONES,  cfg.skinId      || current.skinId     || 's2');
-    const hSt  = get(HAIR_STYLES, cfg.hairId      || current.hairId     || 'hs2');
-    const hCol = get(HAIR_COLORS, cfg.hairColorId || current.hairColorId|| 'h1');
-    const kit  = get(KIT_COLORS,  cfg.kitId       || current.kitId      || 'k1');
-    const uid  = Math.random().toString(36).slice(2,7);
-    const cx = 50, cy = 38;
-
-    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
-  <defs>
-    <radialGradient id="ms${uid}" cx="45%" cy="35%" r="60%">
-      <stop offset="0%" stop-color="${s.highlight}"/>
-      <stop offset="100%" stop-color="${s.shadow}"/>
-    </radialGradient>
-  </defs>
-  <!-- Body -->
-  <rect x="28" y="70" width="44" height="26" rx="10" fill="${kit.primary}"/>
-  <!-- Neck -->
-  <rect x="44" y="62" width="12" height="12" rx="5" fill="${s.base}"/>
-  <!-- Head -->
-  <ellipse cx="${cx}" cy="${cy}" rx="20" ry="22" fill="url(#ms${uid})"/>
-  <!-- Hair -->
-  ${hSt.render(hCol.color, cx, cy)}
-  <!-- Eyes -->
-  <ellipse cx="43" cy="37" rx="5" ry="3.5" fill="white"/>
-  <ellipse cx="57" cy="37" rx="5" ry="3.5" fill="white"/>
-  <circle  cx="43" cy="37" r="2.2" fill="${get(EYE_COLORS, cfg.eyeId||current.eyeId||'e1').iris}"/>
-  <circle  cx="57" cy="37" r="2.2" fill="${get(EYE_COLORS, cfg.eyeId||current.eyeId||'e1').iris}"/>
-  <circle  cx="43" cy="37" r="1.1" fill="#111"/>
-  <circle  cx="57" cy="37" r="1.1" fill="#111"/>
-  <!-- Number badge -->
-  <text x="${cx}" y="87" text-anchor="middle" fill="${kit.trim}" font-size="10" font-weight="bold" font-family="Arial">${cfg.number||current.number||10}</text>
-</svg>`;
-  }
-
-  // ── Creator UI Builder ────────────────────────────────────
+  // ── Creator UI ────────────────────────────────────────────
   function buildCreatorUI(containerId) {
     const el = document.getElementById(containerId);
     if (!el) return;
-    el.innerHTML = `
-      <div class="av-creator">
-        <div class="av-preview" id="av-preview">
-          ${renderSVG(current)}
-        </div>
-        <div class="av-controls">
 
-          <div class="av-group">
-            <label class="av-label">🎨 Tono de Piel</label>
-            <div class="av-swatches">
-              ${SKIN_TONES.map(s => `
-                <button class="swatch skin-sw ${current.skinId===s.id?'active':''}" 
-                  data-key="skinId" data-val="${s.id}" title="${s.name}"
-                  style="background:${s.base};border:3px solid ${current.skinId===s.id?'#00e664':'transparent'}">
-                </button>`).join('')}
-            </div>
-          </div>
+    const swatchSection = (label, key, items, colorFn, nameFn) => {
+      const activeVal = cfg[key];
+      return '<div class="av-group"><label class="av-label">' + label + '</label>'
+        + '<div class="av-swatches">'
+        + items.map(it => '<button class="swatch' + (activeVal === it.id ? ' active' : '') + '" '
+          + 'data-key="' + key + '" data-val="' + it.id + '" '
+          + 'style="background:' + colorFn(it) + ';border-color:' + (activeVal === it.id ? '#00e664' : 'transparent') + '" '
+          + 'title="' + nameFn(it) + '"></button>').join('')
+        + '</div></div>';
+    };
 
-          <div class="av-group">
-            <label class="av-label">💇 Estilo de Cabello</label>
-            <div class="av-swatches pills">
-              ${HAIR_STYLES.map(h => `
-                <button class="pill-btn ${current.hairId===h.id?'active':''}"
-                  data-key="hairId" data-val="${h.id}">${h.name}</button>`).join('')}
-            </div>
-          </div>
+    const pillSection = (label, key, items, nameFn) => {
+      const activeVal = cfg[key];
+      return '<div class="av-group"><label class="av-label">' + label + '</label>'
+        + '<div class="av-swatches pills">'
+        + items.map(it => '<button class="pill-btn' + (activeVal === it.id ? ' active' : '') + '" '
+          + 'data-key="' + key + '" data-val="' + it.id + '">' + nameFn(it) + '</button>').join('')
+        + '</div></div>';
+    };
 
-          <div class="av-group">
-            <label class="av-label">🎨 Color de Cabello</label>
-            <div class="av-swatches">
-              ${HAIR_COLORS.map(h => `
-                <button class="swatch ${current.hairColorId===h.id?'active':''}"
-                  data-key="hairColorId" data-val="${h.id}" title="${h.name}"
-                  style="background:${h.color};border:3px solid ${current.hairColorId===h.id?'#00e664':'transparent'}">
-                </button>`).join('')}
-            </div>
-          </div>
+    const bodyItems = BODY.map(b => b);
+    const hairItems = Object.entries(HAIR).map(([id, h]) => ({ id, name: h.name }));
 
-          <div class="av-group">
-            <label class="av-label">👁 Color de Ojos</label>
-            <div class="av-swatches">
-              ${EYE_COLORS.map(e => `
-                <button class="swatch ${current.eyeId===e.id?'active':''}"
-                  data-key="eyeId" data-val="${e.id}" title="${e.name}"
-                  style="background:${e.iris};border:3px solid ${current.eyeId===e.id?'#00e664':'transparent'}">
-                </button>`).join('')}
-            </div>
-          </div>
+    el.innerHTML = '<div class="av-creator">'
+      + '<div class="av-preview" id="av-preview">' + renderSVG(cfg) + '</div>'
+      + '<div class="av-controls">'
+      + swatchSection('🎨 Tono de Piel', 'skinId', SKIN, sk => sk.base, sk => sk.id)
+      + pillSection('💇 Estilo de Cabello', 'hairId', hairItems, h => h.name)
+      + swatchSection('🎨 Color de Cabello', 'hairColorId', HAIR_COLORS, h => h.c, h => h.id)
+      + swatchSection('👁 Color de Ojos', 'eyeId', EYE_COLORS, e => e.iris, e => e.id)
+      + swatchSection('👕 Camiseta', 'kitId', KIT_COLORS, k => k.p, k => k.name)
+      + pillSection('💪 Complexión', 'bodyId', bodyItems, b => b.name)
+      + '<div class="av-group"><label class="av-label">🔢 Número</label>'
+      + '<input type="number" id="kit-number" min="1" max="99" value="' + cfg.number + '" class="av-number-input"></div>'
+      + '</div></div>';
 
-          <div class="av-group">
-            <label class="av-label">👕 Color de Camiseta</label>
-            <div class="av-swatches">
-              ${KIT_COLORS.map(k => `
-                <button class="swatch ${current.kitId===k.id?'active':''}"
-                  data-key="kitId" data-val="${k.id}" title="${k.name}"
-                  style="background:${k.primary};border:3px solid ${current.kitId===k.id?'#00e664':'transparent'}">
-                </button>`).join('')}
-            </div>
-          </div>
-
-          <div class="av-group">
-            <label class="av-label">💪 Complexión</label>
-            <div class="av-swatches pills">
-              ${BODY_TYPES.map(b => `
-                <button class="pill-btn ${current.bodyId===b.id?'active':''}"
-                  data-key="bodyId" data-val="${b.id}">${b.name}</button>`).join('')}
-            </div>
-          </div>
-
-          <div class="av-group">
-            <label class="av-label">🔢 Número de Camiseta</label>
-            <input type="number" id="kit-number" min="1" max="99" value="${current.number}"
-              class="av-number-input" placeholder="10">
-          </div>
-
-        </div>
-      </div>`;
-
-    // Events — swatches & pills
+    // Events
     el.querySelectorAll('[data-key]').forEach(btn => {
       btn.addEventListener('click', () => {
         const key = btn.dataset.key, val = btn.dataset.val;
-        current[key] = val;
-        // Update active state
-        el.querySelectorAll(`[data-key="${key}"]`).forEach(b => {
-          b.classList.toggle('active', b.dataset.val === val);
-          if (b.classList.contains('swatch')) {
-            b.style.borderColor = b.dataset.val === val ? '#00e664' : 'transparent';
-          }
+        cfg[key] = val;
+        el.querySelectorAll('[data-key="' + key + '"]').forEach(b => {
+          const active = b.dataset.val === val;
+          b.classList.toggle('active', active);
+          if (b.classList.contains('swatch')) b.style.borderColor = active ? '#00e664' : 'transparent';
         });
-        refreshPreview();
+        document.getElementById('av-preview').innerHTML = renderSVG(cfg);
       });
     });
 
-    // Number input
     const numInput = document.getElementById('kit-number');
     if (numInput) {
       numInput.addEventListener('input', () => {
         const n = parseInt(numInput.value);
-        if (n >= 1 && n <= 99) { current.number = n; refreshPreview(); }
+        if (n >= 1 && n <= 99) { cfg.number = n; document.getElementById('av-preview').innerHTML = renderSVG(cfg); }
       });
     }
   }
 
-  function refreshPreview() {
-    const prev = document.getElementById('av-preview');
-    if (prev) prev.innerHTML = renderSVG(current);
-  }
+  function getCurrent() { return Object.assign({}, cfg); }
+  function setCurrent(c) { Object.assign(cfg, c); }
 
-  function getCurrent() { return { ...current }; }
-  function setCurrent(cfg) { Object.assign(current, cfg); }
-
-  return {
-    buildCreatorUI, renderSVG, getMiniSVG, getCurrent, setCurrent,
-    SKIN_TONES, HAIR_COLORS, EYE_COLORS, KIT_COLORS, HAIR_STYLES, BODY_TYPES
-  };
+  return { buildCreatorUI, renderSVG, getMiniSVG, getCurrent, setCurrent, SKIN, HAIR_COLORS, EYE_COLORS, KIT_COLORS, HAIR, BODY };
 })();

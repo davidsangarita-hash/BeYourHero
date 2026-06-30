@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    BE YOUR HERO v2 – career.js
    Career dashboard with shields, tier badge, promotion panel
    ============================================================ */
@@ -71,11 +71,39 @@ const CareerUI = (() => {
         <span class="mini-val">${val}</span></div>`;
     });
 
-    // News
-    document.getElementById('news-list').innerHTML=(news||[]).map(n=>
-      `<div class="news-item"><span class="news-dot"></span><p>${n}</p></div>`).join('');
+    // News -- rich card feed
+    const newsEl = document.getElementById('news-list');
+    if (newsEl) {
+      const newsItems = (news || []).slice().reverse(); // newest first
+      if (!newsItems.length) {
+        newsEl.innerHTML = '<div class="empty-state"><span class="empty-icon">📰</span><p>Las noticias aparecen aqui despues de tus partidos</p></div>';
+      } else {
+        newsEl.innerHTML = newsItems.map(function(n, idx) {
+          // Auto-detect category from emoji prefix
+          let cat = 'general', catLabel = 'GENERAL', icon = '📋';
+          if (n.startsWith('🎉') || n.startsWith('✅')) { cat = 'success'; catLabel = 'LOGRO'; icon = n.substring(0,2); }
+          else if (n.startsWith('⚽')) { cat = 'goal'; catLabel = 'PARTIDO'; icon = '⚽'; }
+          else if (n.startsWith('📈') || n.startsWith('💪')) { cat = 'growth'; catLabel = 'PROGRESO'; icon = '📈'; }
+          else if (n.startsWith('🏟️') || n.startsWith('🏆')) { cat = 'club'; catLabel = 'CLUB'; icon = '🏟️'; }
+          else if (n.startsWith('💰') || n.startsWith('🔄')) { cat = 'transfer'; catLabel = 'TRANSFERENCIA'; icon = '💰'; }
+          else if (n.startsWith('⚡') || n.startsWith('🔥')) { cat = 'hot'; catLabel = 'DESTACADO'; icon = '⚡'; }
+          else if (n.startsWith('📰')) { cat = 'press'; catLabel = 'PRENSA'; icon = '📰'; }
+          // Strip leading emoji from text
+          const cleanText = n.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27FF}]\s*/u, '');
+          const ageLabel = idx === 0 ? 'Ahora' : idx === 1 ? 'Hace un momento' : 'Reciente';
+          return '<div class="news-card news-cat-' + cat + '">'
+            + '<div class="news-card-icon">' + icon + '</div>'
+            + '<div class="news-card-body">'
+            + '<span class="news-card-badge">' + catLabel + '</span>'
+            + '<p class="news-card-text">' + cleanText + '</p>'
+            + '<span class="news-card-time">' + ageLabel + '</span>'
+            + '</div>'
+            + '</div>';
+        }).join('');
+      }
+    }
 
-    // Career stats
+        // Career stats
     const cs=state.careerStats;
     document.getElementById('career-goals').textContent=cs.goals+seasonStats.goals;
     document.getElementById('career-assists').textContent=cs.assists+seasonStats.assists;
@@ -277,3 +305,4 @@ const CareerUI = (() => {
 
   return { boot, refreshDashboard, switchTab, showSchedule, showTable, goToNextMatch };
 })();
+

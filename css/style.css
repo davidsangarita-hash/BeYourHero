@@ -1144,3 +1144,50 @@ select option { background: #0d1421; color: var(--text-primary); }
 .empty-state .empty-icon { font-size: 40px; opacity: 0.5; }
 .empty-state p { font-size: 13px; }
 
+
+/* ============================================================
+   NEWS FEED — rich card-based layout
+   ============================================================ */
+.news-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
+.news-card {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.2s; cursor: default;
+  border-left-width: 3px;
+  animation: newsSlideIn 0.35s ease backwards;
+}
+.news-card:hover { background: rgba(255,255,255,0.055); transform: translateX(2px); }
+@keyframes newsSlideIn { from { opacity:0; transform: translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+/* Category colors (left border) */
+.news-cat-success  { border-left-color: #00e664; }
+.news-cat-goal     { border-left-color: #FFD700; }
+.news-cat-growth   { border-left-color: #44AAFF; }
+.news-cat-club     { border-left-color: #AA66FF; }
+.news-cat-transfer { border-left-color: #FF9900; }
+.news-cat-hot      { border-left-color: #FF4444; }
+.news-cat-press    { border-left-color: #AAB0BB; }
+.news-cat-general  { border-left-color: rgba(255,255,255,0.2); }
+.news-card-icon {
+  font-size: 20px; line-height: 1; min-width: 24px; text-align: center;
+  padding-top: 2px;
+}
+.news-card-body { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.news-card-badge {
+  font-size: 8px; font-weight: 800; letter-spacing: 1.5px;
+  color: var(--text-muted); text-transform: uppercase;
+}
+.news-card-text {
+  font-size: 12px; font-weight: 500; color: var(--text-primary);
+  line-height: 1.4; margin: 0;
+}
+.news-card-time {
+  font-size: 9px; color: var(--text-muted); margin-top: 2px;
+}
+/* Staggered animation delay */
+.news-card:nth-child(1) { animation-delay: 0.05s; }
+.news-card:nth-child(2) { animation-delay: 0.10s; }
+.news-card:nth-child(3) { animation-delay: 0.15s; }
+.news-card:nth-child(4) { animation-delay: 0.20s; }
+.news-card:nth-child(5) { animation-delay: 0.25s; }
