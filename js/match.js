@@ -423,6 +423,7 @@ const MatchEngine = (() => {
           }
           Game.advanceRound();
           CareerUI.boot();
+          Game.autoSave();
           GameUI.showScreen('screen-career');
           GameUI.showToast(`✅ Partido finalizado — Nota: ${playerRating} | Decisiones: ${decisionsOk}/${decisionsTotal}`);
         });

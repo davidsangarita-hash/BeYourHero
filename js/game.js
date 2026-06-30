@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    BE YOUR HERO v2 – game.js
    Global state — uses inline GameData, no fetch() needed
    ============================================================ */
@@ -22,6 +22,10 @@ const Game = (() => {
     return Promise.resolve(true);
   }
 
+  function autoSave() {
+    if (typeof updateSaveLabel === "function") updateSaveLabel();
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e) {}
+  }
   function saveGame() {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(state));
@@ -240,3 +244,4 @@ const Table = (() => {
 
   return { init, update };
 })();
+

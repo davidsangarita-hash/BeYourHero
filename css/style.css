@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    BE YOUR HERO v2 – style.css
    Complete design system — v2.1 (fixes, modern UI)
    ============================================================ */
@@ -1143,3 +1143,4 @@ select option { background: #0d1421; color: var(--text-primary); }
 }
 .empty-state .empty-icon { font-size: 40px; opacity: 0.5; }
 .empty-state p { font-size: 13px; }
+
