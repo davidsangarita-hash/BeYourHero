@@ -249,78 +249,79 @@ const DecisionEngine = (() => {
   // ── Between-match scenarios ──────────────────────────────
   const BETWEEN = {
 
-    // -- Always shown: training / recovery
+    // ── Always shown after match ─────────────────────────
     training: [
-      { icon:'?', badge:'POST-ENTRENAMIENTO', title:'Partido terminado. Como usas el tiempo del dia?',
+      { icon:'🏋', badge:'POST-ENTRENAMIENTO', title:'Partido terminado. ¿Cómo usás el tiempo del día?',
         opts:[
-          { id:'shoot',  icon:'?', label:'Practicar\ntiros extra',     desc:'+2 Remate',         bonus:'{"attr":"shooting","val":2}' },
-          { id:'pool',   icon:'?', label:'Recuperacion\nen piscina',   desc:'+Energia',           bonus:'{"fatigue":22}' },
-          { id:'gym',    icon:'?', label:'Trabajo\nde fuerza',         desc:'+2 Fisico',          bonus:'{"attr":"physical","val":2}' },
-          { id:'film',   icon:'?', label:'Analizar\nmi partido',       desc:'+2 Pase',            bonus:'{"attr":"passing","val":2}' },
+          { id:'shoot',   icon:'⚽', label:'Practicar\ntiros extra',      desc:'+2 Remate',          bonus:{"attr":"shooting","val":2} },
+          { id:'pool',    icon:'🏊', label:'Recuperación\nen piscina',  desc:'+Energía',           bonus:{"fatigue":22} },
+          { id:'gym',     icon:'💪', label:'Trabajo\nde fuerza',          desc:'+2 Físico',           bonus:{"attr":"physical","val":2} },
+          { id:'film',    icon:'📹', label:'Analizar\nmi partido',         desc:'+2 Pase',             bonus:{"attr":"passing","val":2} },
         ]},
-      { icon:'?', badge:'RECUPERACION', title:'El cuerpo lo dio todo. Como te recuperas?',
+      { icon:'🧘', badge:'RECUPERACIÓN', title:'El cuerpo lo dio todo. ¿Cómo te recuperás?',
         opts:[
-          { id:'ice',    icon:'?', label:'Bano de\nhielo',             desc:'+Recuperacion',       bonus:'{"fatigue":25}' },
-          { id:'stretch',icon:'?', label:'Estiramiento\nprofundo',     desc:'+Fisico +Energia',    bonus:'{"attr":"physical","val":1,"fatigue":12}' },
-          { id:'sleep',  icon:'?', label:'Dormir\nmucho',              desc:'+Energia ++',         bonus:'{"fatigue":30}' },
-          { id:'gym',    icon:'?', label:'Gym\nliviano',               desc:'+Velocidad',          bonus:'{"attr":"pace","val":1}' },
+          { id:'ice',     icon:'🧊', label:'Baño de\nhielo',               desc:'+Recuperación',      bonus:{"fatigue":25} },
+          { id:'stretch', icon:'🤸', label:'Estiramiento\nprofundo',         desc:'+Físico +Energía', bonus:{"attr":"physical","val":1,"fatigue":12} },
+          { id:'sleep',   icon:'😴', label:'Dormir\nbien',                   desc:'+Energía ++',         bonus:{"fatigue":30} },
+          { id:'drills',  icon:'⚡',    label:'Ejercicios\neo técnicos',     desc:'+Velocidad',          bonus:{"attr":"pace","val":1} },
         ]},
-      { icon:'?', badge:'NUTRICION', title:'Tu nutricionista te espera. Que decides?',
+      { icon:'🍽', badge:'NUTRICIÓN', title:'Tu nutricionista te espera. ¿Qué decídis?',
         opts:[
-          { id:'protein',icon:'?', label:'Dieta\nde proteinas',        desc:'+Fisico',             bonus:'{"attr":"physical","val":1}' },
-          { id:'carbs',  icon:'?', label:'Carbohidratos\npara manana', desc:'+Energia',            bonus:'{"fatigue":18}' },
-          { id:'full',   icon:'?', label:'Dieta\ncompleta',            desc:'+Energia +Fisico',    bonus:'{"fatigue":10,"attr":"physical","val":1}' },
-          { id:'cheat',  icon:'?', label:'Comer\nlo que quiero',       desc:'+Moral',              bonus:'{"morale":2}' },
+          { id:'protein', icon:'🥩', label:'Dieta de\nproteínas',          desc:'+Físico',             bonus:{"attr":"physical","val":1} },
+          { id:'carbs',   icon:'🍝', label:'Carbohidratos\npara mañana',   desc:'+Energía',            bonus:{"fatigue":18} },
+          { id:'full',    icon:'🥗', label:'Dieta\ncompleta',                 desc:'+Energía +Físico',  bonus:{"attr":"physical","val":1,"fatigue":10} },
+          { id:'cheat',   icon:'🍕', label:'Comer\nlo que quiero',             desc:'+Moral',               bonus:{"morale":2} },
         ]},
     ],
 
-    // -- Press conference after victory / MVP / special
+    // ── Press conference — only after MVP / big win / captain ──
     press_win: [
-      { icon:'?', badge:'RUEDA DE PRENSA - VICTORIA', title:'El periodista te apunta el microfono. Ganaron. Que decis?',
+      { icon:'🎤', badge:'RUEDA DE PRENSA — VICTORIA', title:'El periodista te apunta el micrófono. Ganaron. ¿Qué decís?',
         opts:[
-          { id:'team',   icon:'?', label:'El merito\nes del equipo',   desc:'+Moral del grupo',    bonus:'{"morale":2}' },
-          { id:'honest', icon:'?', label:'Fuimos\nclaramente mejores', desc:'+Reputacion',         bonus:'{"rep":2}' },
-          { id:'praise', icon:'?', label:'Reconocer\nal rival',        desc:'+Deportividad',        bonus:'{"rep":1,"morale":1}' },
-          { id:'fire',   icon:'?', label:'Solo\nestamos empezando!',   desc:'+Moral ++',            bonus:'{"morale":3}' },
+          { id:'team',   icon:'🤝', label:'El mérito\nes del equipo',    desc:'+Moral del grupo',     bonus:{"morale":2} },
+          { id:'honest', icon:'😎', label:'Fuimos\nclaramente mejores',      desc:'+Reputación',       bonus:{"rep":2} },
+          { id:'praise', icon:'👏', label:'Reconocer\nal rival',             desc:'+Deportividad',         bonus:{"rep":1,"morale":1} },
+          { id:'fire',   icon:'🔥', label:'¡Solo\nestamos empezando!',   desc:'+Moral ++',             bonus:{"morale":3} },
         ]},
-      { icon:'?', badge:'FOTO DE VICTORIA', title:'Te piden para la foto de campeones. Como reaccionas?',
+      { icon:'📸', badge:'FOTO DE VICTORIA', title:'Te piden para la foto de campeones. ¿Cómo reaccionás?',
         opts:[
-          { id:'lead',   icon:'?', label:'Al frente\ncon el trofeo',   desc:'+Reputacion ++',      bonus:'{"rep":3}' },
-          { id:'team',   icon:'?', label:'Con todo\nel equipo',        desc:'+Moral',              bonus:'{"morale":2}' },
-          { id:'humble', icon:'?', label:'Con humildad\nal fondo',     desc:'+Imagen positiva',    bonus:'{"rep":1}' },
-          { id:'skip',   icon:'?', label:'Evitas\nlos flashes',        desc:'Ninguno',             bonus:'{}' },
+          { id:'lead',   icon:'🏆', label:'Al frente\ncon el trofeo',        desc:'+Reputación ++',     bonus:{"rep":3} },
+          { id:'team',   icon:'🤝', label:'Con todo\nel equipo',             desc:'+Moral',               bonus:{"morale":2} },
+          { id:'humble', icon:'😊', label:'Con humildad\nal fondo',          desc:'+Imagen positiva',      bonus:{"rep":1} },
+          { id:'skip',   icon:'🏃', label:'Evitás\nlos flashes',        desc:'Ninguno',               bonus:{} },
         ]},
     ],
 
-    // -- Press conference after defeat
+    // ── Press conference after defeat ──────────────────────
     press_loss: [
-      { icon:'?', badge:'RUEDA DE PRENSA - DERROTA', title:'Perdieron. El periodista insiste. Que decis?',
+      { icon:'🎤', badge:'RUEDA DE PRENSA — DERROTA', title:'Perdieron. El periodista insiste. ¿Qué decís?',
         opts:[
-          { id:'own',    icon:'?', label:'Asumir\nla responsabilidad', desc:'+Respeto',             bonus:'{"rep":2}' },
-          { id:'team',   icon:'?', label:'Defender\nal equipo',        desc:'+Moral del grupo',     bonus:'{"morale":2}' },
-          { id:'angry',  icon:'?', label:'El arbitro\nes una verguenza', desc:'Polemico',           bonus:'{"morale":1,"rep":-2}' },
-          { id:'silent', icon:'?', label:'Sin\ncomentarios',           desc:'Neutral',              bonus:'{}' },
+          { id:'own',    icon:'🙏', label:'Asumir la\nresponsabilidad',      desc:'+Respeto',             bonus:{"rep":2} },
+          { id:'team',   icon:'🛡', label:'Defender\nal equipo',             desc:'+Moral del grupo',     bonus:{"morale":2} },
+          { id:'angry',  icon:'😡', label:'El árbitro fue\nuna verguenza', desc:'Polémico 🌶',  bonus:{"morale":1,"rep":-2} },
+          { id:'silent', icon:'🤐', label:'Sin\ncomentarios',                desc:'Neutral',              bonus:{} },
         ]},
     ],
 
-    // -- Pre-match (shown before starting match)
+    // ── Pre-match (shown before starting match) ────────────
     pre: [
-      { icon:'?', badge:'PREPARACION PRE-PARTIDO', title:'Como te preparas para el partido de hoy?',
+      { icon:'🎯', badge:'PREPARACIÓN PRE-PARTIDO', title:'¿Cómo te preparás para el partido de hoy?',
         opts:[
-          { id:'focus',  icon:'?', label:'Concentracion\ntotal',       desc:'+2 Remate',           bonus:'{"attr":"shooting","val":2}' },
-          { id:'video',  icon:'?', label:'Ver video\ndel rival',       desc:'+2 Pase',             bonus:'{"attr":"passing","val":2}' },
-          { id:'sprint', icon:'?', label:'Entrada en\ncalor intensa',  desc:'+2 Velocidad',        bonus:'{"attr":"pace","val":2}' },
-          { id:'rest',   icon:'?', label:'Descansar\ny relajarse',     desc:'+Energia',            bonus:'{"fatigue":15}' },
+          { id:'focus',  icon:'🧘', label:'Concentración\ntotal',        desc:'+2 Remate',            bonus:{"attr":"shooting","val":2} },
+          { id:'video',  icon:'📹', label:'Ver vídeo\ndel rival',         desc:'+2 Pase',              bonus:{"attr":"passing","val":2} },
+          { id:'sprint', icon:'🏃', label:'Entrada en\ncalor intensa',        desc:'+2 Velocidad',         bonus:{"attr":"pace","val":2} },
+          { id:'rest',   icon:'😴', label:'Descansar\ny relajarse',           desc:'+Energía',         bonus:{"fatigue":15} },
         ]},
-      { icon:'?', badge:'CHARLA TECNICA', title:'El tecnico pregunta: Como te sentis para el partido?',
+      { icon:'🗣', badge:'CHARLA TÉCNICA', title:'El técnico pregunta: ¿Cómo te sentís para el partido?',
         opts:[
-          { id:'great',  icon:'?', label:'Al 100%\nlisto',             desc:'+Moral',              bonus:'{"morale":2}' },
-          { id:'ok',     icon:'?', label:'Bien\nnormal',               desc:'Sin cambios',         bonus:'{}' },
-          { id:'fired',  icon:'?', label:'Quiero\nreventar!',          desc:'+Moral ++',           bonus:'{"morale":3}' },
-          { id:'sore',   icon:'?', label:'Molestia\npero juego',       desc:'-Moral',              bonus:'{"morale":-1}' },
+          { id:'great',  icon:'💪', label:'Al 100%,\nlisto',                 desc:'+Moral',               bonus:{"morale":2} },
+          { id:'ok',     icon:'😐', label:'Bien,\nnormal',                   desc:'Sin cambios',          bonus:{} },
+          { id:'fired',  icon:'🔥', label:'¡Quiero\nreventar!',           desc:'+Moral ++',            bonus:{"morale":3} },
+          { id:'sore',   icon:'🩹', label:'Molestia\npero juego',             desc:'-Moral',               bonus:{"morale":-1} },
         ]},
     ],
   };
+
   function calcPct(base, player, attrKey) {
     const attrVal = player && attrKey ? (player.attributes[attrKey] || 65) : 65;
     const fatigue  = player ? (player.fatigue  || 80) : 80;
@@ -580,7 +581,8 @@ const DecisionEngine = (() => {
 
   // ── Between-match prompt (uses modal) ────────────────────
   function promptBetween(type, callback) {
-    const pool = BETWEEN[type] || BETWEEN.pre;
+    const pool = BETWEEN[type] || BETWEEN['training'] || BETWEEN['pre'] || [];
+    if (!pool || !pool.length) { if (callback) callback({}); return; }
     const dec  = pool[Math.floor(Math.random() * pool.length)];
         const optsHTML = dec.opts.map(function(o) {
       var bonusStr = (typeof o.bonus === 'string') ? o.bonus : JSON.stringify(o.bonus || {});
