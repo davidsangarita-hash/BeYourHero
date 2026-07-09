@@ -332,7 +332,7 @@ const DecisionEngine = (() => {
 
   function pctClass(p) { return p >= 62 ? 'pct-high' : p >= 40 ? 'pct-mid' : 'pct-low'; }
 
-  // ── Render visual goal grid ──────────────────────────────
+  // ── Render visual goal grid (zones embedded in SVG) ──
   function renderGoalGrid(player, isPenalty) {
     const gkHint   = GK_HINTS[Math.floor(Math.random() * GK_HINTS.length)];
     const penBonus = isPenalty ? 22 : 0;
@@ -341,113 +341,170 @@ const DecisionEngine = (() => {
     const attrMod  = (attrVal - 60) * 0.4;
     const fatMod   = -(100 - fatigue) * 0.07;
 
-    const zones = GOAL_ZONES.map(z => {
+    const zones = GOAL_ZONES.map(function(z) {
       const vBonus = gkHint.vuln.includes(z.id) ? +20 : -8;
       const pct    = Math.min(94, Math.max(6, Math.round(z.base + attrMod + fatMod + vBonus + penBonus)));
-      return Object.assign({}, z, { pct });
+      return Object.assign({}, z, { pct: pct });
     });
 
-    // GK position
-    let gkX = 150;
-    const vuln = gkHint.vuln;
+    // GK position based on vulnerability
+    var vuln = gkHint.vuln;
+    var gkX  = 150;
     if (vuln.includes('mr') && !vuln.includes('ml')) gkX = 110;
     if (vuln.includes('ml') && !vuln.includes('mr')) gkX = 190;
-    let gkY = 76;
-    if (vuln.some(v => ['tl','tc','tr'].includes(v)) && !vuln.some(v => ['bl','bc','br'].includes(v))) gkY = 62;
-    if (vuln.some(v => ['bl','bc','br'].includes(v)) && !vuln.some(v => ['tl','tc','tr'].includes(v))) gkY = 86;
-    const armLY = vuln.includes('ml') ? gkY - 2 : gkY + 10;
-    const armRY = vuln.includes('mr') ? gkY - 2 : gkY + 10;
-    const pc    = p => p >= 62 ? '#00e664' : p >= 40 ? '#ffa500' : '#ff5555';
+    var gkY  = 52;
+    if (vuln.some(function(v){ return ['tl','tc','tr'].includes(v); }) &&
+       !vuln.some(function(v){ return ['bl','bc','br'].includes(v); })) gkY = 40;
+    if (vuln.some(function(v){ return ['bl','bc','br'].includes(v); }) &&
+       !vuln.some(function(v){ return ['tl','tc','tr'].includes(v); })) gkY = 62;
+    var armLY = vuln.includes('ml') ? gkY - 4 : gkY + 8;
+    var armRY = vuln.includes('mr') ? gkY - 4 : gkY + 8;
 
-    // Net lines
-    let netV = '', netH = '';
-    for (let i = 0; i <= 11; i++) netV += '<line x1="' + (28 + i*20) + '" y1="12" x2="' + (28 + i*20) + '" y2="78" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>';
-    for (let i = 0; i <= 5;  i++) netH += '<line x1="28" y1="' + (12 + i*13) + '" x2="258" y2="' + (12 + i*13) + '" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>';
+    var pc = function(p) { return p >= 62 ? '#22dd88' : p >= 40 ? '#ffaa22' : '#ff5555'; };
 
-    // Zone % labels on SVG
-    const zLabels = zones.map(function(z) {
-      const zx = 70 + z.col * 60;
-      const zy  = 24 + z.row * 22;
-      return '<text x="' + zx + '" y="' + zy + '" text-anchor="middle" fill="' + pc(z.pct) + '" font-size="9" font-weight="900" font-family="Arial" style="paint-order:stroke;stroke:#000;stroke-width:3;stroke-linejoin:round">' + z.pct + '%</text>';
+    // ── Goal interior zone layout (SVG coords) ──────────
+    // Goal: left post x=29, right post x=271, crossbar y=13, ground y=80
+    // Interior: w=242, h=67 → each zone ~80.7×22.3
+    var ZX0=29, ZW=242, ZY0=13, ZH=67;
+    var cw=ZW/3, ch=ZH/3;
+
+    // ── Net lines ──────────────────────────────────────
+    var netV='', netH='';
+    for (var i=0;i<=14;i++) netV+='<line x1="'+(ZX0+i*(ZW/14))+'" y1="'+ZY0+'" x2="'+(ZX0+i*(ZW/14))+'" y2="80" stroke="rgba(255,255,255,0.045)" stroke-width="0.6"/>';
+    for (var j=0;j<=5;j++)  netH+='<line x1="'+ZX0+'" y1="'+(ZY0+j*(ZH/5))+'" x2="'+(ZX0+ZW)+'" y2="'+(ZY0+j*(ZH/5))+'" stroke="rgba(255,255,255,0.045)" stroke-width="0.6"/>';
+
+    // ── Zone dividers (visible lines on the goal) ──────
+    // Vertical dividers at 1/3 and 2/3
+    var v1=ZX0+cw, v2=ZX0+2*cw;
+    // Horizontal divider at 1/3 and 2/3
+    var h1=ZY0+ch, h2=ZY0+2*ch;
+    var dividers =
+      '<line x1="'+v1+'" y1="'+ZY0+'" x2="'+v1+'" y2="80" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" stroke-dasharray="2,2"/>' +
+      '<line x1="'+v2+'" y1="'+ZY0+'" x2="'+v2+'" y2="80" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" stroke-dasharray="2,2"/>' +
+      '<line x1="'+ZX0+'" y1="'+h1+'" x2="'+(ZX0+ZW)+'" y2="'+h1+'" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" stroke-dasharray="2,2"/>' +
+      '<line x1="'+ZX0+'" y1="'+h2+'" x2="'+(ZX0+ZW)+'" y2="'+h2+'" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" stroke-dasharray="2,2"/>';
+
+    // ── Clickable SVG zone rects ───────────────────────
+    var zoneRects = zones.map(function(z) {
+      var rx = ZX0 + z.col * cw;
+      var ry = ZY0 + z.row * ch;
+      var cx = rx + cw/2;
+      var cy = ry + ch/2;
+      var pColor = pc(z.pct);
+      return (
+        '<g class="svg-zone" data-choice="'+z.id+'" data-pct="'+z.pct+'" role="button" tabindex="0" style="cursor:pointer">'+
+          // transparent hover zone
+          '<rect x="'+rx+'" y="'+ry+'" width="'+cw+'" height="'+ch+'" rx="0"'+
+            ' fill="rgba(0,0,0,0)" class="svg-zone-rect" data-color="'+pColor+'" />'+
+          // Arrow glyph (always visible)
+          '<text x="'+cx+'" y="'+(cy+2)+'" text-anchor="middle" dominant-baseline="middle"'+
+            ' fill="rgba(255,255,255,0.55)" font-size="11" font-family="Arial" class="svg-zone-arrow">'+z.arrow+'</text>'+
+          // Success % label (visible on hover via CSS, always shown in accessible form)
+          '<text x="'+cx+'" y="'+(cy+13)+'" text-anchor="middle" dominant-baseline="middle"'+
+            ' fill="'+pColor+'" font-size="8.5" font-weight="900" font-family="Arial,monospace" class="svg-zone-pct"'+
+            ' style="paint-order:stroke;stroke:rgba(0,0,0,0.8);stroke-width:2.5">'+z.pct+'%</text>'+
+        '</g>'
+      );
     }).join('');
 
-    const ball = isPenalty
-      ? '<circle cx="150" cy="142" r="7" fill="#111"/><path d="M150 135 Q155 139 155 142 Q155 147 150 149 Q145 147 145 142 Q145 139 150 135Z" fill="#fff" opacity="0.5"/>'
-      : '<circle cx="150" cy="146" r="5" fill="#111"/><path d="M150 141 Q154 144 154 146 Q154 149 150 151 Q146 149 146 146 Q146 144 150 141Z" fill="#fff" opacity="0.5"/>';
+    // ── Ball ──────────────────────────────────────────
+    var ball = isPenalty
+      ? '<circle cx="150" cy="140" r="7" fill="#111"/><path d="M150 133 Q155 137 155 140 Q155 145 150 147 Q145 145 145 140 Q145 137 150 133Z" fill="#fff" opacity="0.5"/>'
+      : '<circle cx="150" cy="145" r="5" fill="#111"/><path d="M150 140 Q154 143 154 145 Q154 148 150 150 Q146 148 146 145 Q146 143 150 140Z" fill="#fff" opacity="0.5"/>';
 
-    const penBadge = isPenalty ? '<span class="penalty-badge">PENALTI</span>' : '';
-
-    // Build SVG string
-    const svgStr = '<svg class="vgoal-svg" viewBox="0 0 300 155" xmlns="http://www.w3.org/2000/svg">'
-      + '<defs>'
-      + '<linearGradient id="vfG" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#1a5c2a"/><stop offset="1" stop-color="#0e3a18"/></linearGradient>'
-      + '<linearGradient id="vsG" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#030810"/><stop offset="1" stop-color="#0a1825"/></linearGradient>'
-      + '</defs>'
-      + '<rect width="300" height="80" fill="url(#vsG)"/>'
-      + '<circle cx="28" cy="12" r="0.8" fill="white" opacity="0.4"/>'
-      + '<circle cx="82" cy="7" r="0.6" fill="white" opacity="0.3"/>'
-      + '<circle cx="198" cy="19" r="0.7" fill="white" opacity="0.35"/>'
-      + '<circle cx="254" cy="9" r="0.6" fill="white" opacity="0.3"/>'
-      + '<circle cx="271" cy="32" r="0.5" fill="white" opacity="0.25"/>'
-      + '<rect y="78" width="300" height="77" fill="url(#vfG)"/>'
-      + '<rect y="78" width="300" height="14" fill="rgba(255,255,255,0.025)"/>'
-      + '<rect y="108" width="300" height="14" fill="rgba(255,255,255,0.025)"/>'
-      + '<path d="M95 155 Q150 113 205 155" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>'
-      + '<circle cx="150" cy="147" r="2" fill="rgba(255,255,255,0.4)"/>'
-      + netV + netH
-      + '<rect x="22" y="9" width="7" height="70" fill="#efefef" rx="2.5"/>'
-      + '<rect x="271" y="9" width="7" height="70" fill="#efefef" rx="2.5"/>'
-      + '<rect x="22" y="7" width="256" height="6" fill="#fff" rx="2.5"/>'
-      + '<rect x="22" y="78" width="256" height="2" fill="rgba(255,255,255,0.14)" rx="1"/>'
-      // GK shadow
-      + '<ellipse cx="' + gkX + '" cy="' + (gkY+31) + '" rx="17" ry="4" fill="rgba(0,0,0,0.3)"/>'
-      // GK legs
-      + '<line x1="' + (gkX-7) + '" y1="' + (gkY+16) + '" x2="' + (gkX-9) + '" y2="' + (gkY+31) + '" stroke="#FFD700" stroke-width="4.5" stroke-linecap="round"/>'
-      + '<line x1="' + (gkX+7) + '" y1="' + (gkY+16) + '" x2="' + (gkX+9) + '" y2="' + (gkY+31) + '" stroke="#FFD700" stroke-width="4.5" stroke-linecap="round"/>'
+    // ── GK figure ─────────────────────────────────────
+    var gk =
+      // Shadow
+      '<ellipse cx="'+gkX+'" cy="'+(gkY+32)+'" rx="16" ry="3.5" fill="rgba(0,0,0,0.35)"/>' +
+      // Legs
+      '<line x1="'+(gkX-6)+'" y1="'+(gkY+14)+'" x2="'+(gkX-8)+'" y2="'+(gkY+30)+'" stroke="#FFD700" stroke-width="4" stroke-linecap="round"/>' +
+      '<line x1="'+(gkX+6)+'" y1="'+(gkY+14)+'" x2="'+(gkX+8)+'" y2="'+(gkY+30)+'" stroke="#FFD700" stroke-width="4" stroke-linecap="round"/>' +
       // Boots
-      + '<ellipse cx="' + (gkX-9) + '" cy="' + (gkY+32) + '" rx="6" ry="2.5" fill="#222"/>'
-      + '<ellipse cx="' + (gkX+9) + '" cy="' + (gkY+32) + '" rx="6" ry="2.5" fill="#222"/>'
+      '<ellipse cx="'+(gkX-8)+'" cy="'+(gkY+31)+'" rx="5.5" ry="2" fill="#1a1a1a"/>' +
+      '<ellipse cx="'+(gkX+8)+'" cy="'+(gkY+31)+'" rx="5.5" ry="2" fill="#1a1a1a"/>' +
       // Shorts
-      + '<rect x="' + (gkX-11) + '" y="' + (gkY+13) + '" width="22" height="9" rx="3" fill="#1a1a4a"/>'
+      '<rect x="'+(gkX-10)+'" y="'+(gkY+12)+'" width="20" height="8" rx="2.5" fill="#1a1a4a"/>' +
       // Jersey
-      + '<rect x="' + (gkX-14) + '" y="' + (gkY-3) + '" width="28" height="18" rx="5" fill="#FFD700"/>'
-      + '<line x1="' + (gkX-5) + '" y1="' + (gkY-3) + '" x2="' + (gkX-5) + '" y2="' + (gkY+15) + '" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>'
-      + '<line x1="' + (gkX+5) + '" y1="' + (gkY-3) + '" x2="' + (gkX+5) + '" y2="' + (gkY+15) + '" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>'
+      '<rect x="'+(gkX-13)+'" y="'+(gkY-2)+'" width="26" height="16" rx="4" fill="#FFD700"/>' +
       // Arms
-      + '<line x1="' + (gkX-14) + '" y1="' + (gkY+4) + '" x2="' + (gkX-30) + '" y2="' + armLY + '" stroke="#FFD700" stroke-width="5.5" stroke-linecap="round"/>'
-      + '<line x1="' + (gkX+14) + '" y1="' + (gkY+4) + '" x2="' + (gkX+30) + '" y2="' + armRY + '" stroke="#FFD700" stroke-width="5.5" stroke-linecap="round"/>'
+      '<line x1="'+(gkX-13)+'" y1="'+(gkY+4)+'" x2="'+(gkX-28)+'" y2="'+armLY+'" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>' +
+      '<line x1="'+(gkX+13)+'" y1="'+(gkY+4)+'" x2="'+(gkX+28)+'" y2="'+armRY+'" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>' +
       // Gloves
-      + '<circle cx="' + (gkX-30) + '" cy="' + armLY + '" r="5.5" fill="#d05000"/>'
-      + '<circle cx="' + (gkX+30) + '" cy="' + armRY + '" r="5.5" fill="#d05000"/>'
+      '<circle cx="'+(gkX-28)+'" cy="'+armLY+'" r="5" fill="#c04800"/>' +
+      '<circle cx="'+(gkX+28)+'" cy="'+armRY+'" r="5" fill="#c04800"/>' +
       // Head
-      + '<circle cx="' + gkX + '" cy="' + (gkY-10) + '" r="10" fill="#C68642"/>'
+      '<circle cx="'+gkX+'" cy="'+(gkY-9)+'" r="9.5" fill="#C68642"/>' +
       // Cap
-      + '<ellipse cx="' + gkX + '" cy="' + (gkY-17) + '" rx="10" ry="5" fill="#111"/>'
-      + '<rect x="' + (gkX-11) + '" y="' + (gkY-20) + '" width="22" height="6" rx="3" fill="#FFD700"/>'
-      + '<rect x="' + (gkX-14) + '" y="' + (gkY-15) + '" width="28" height="3" rx="1.5" fill="#FFD700"/>'
+      '<ellipse cx="'+gkX+'" cy="'+(gkY-16)+'" rx="9.5" ry="4.5" fill="#111"/>' +
+      '<rect x="'+(gkX-10)+'" y="'+(gkY-19)+'" width="20" height="5" rx="2.5" fill="#FFD700"/>' +
       // Eyes
-      + '<circle cx="' + (gkX-3.5) + '" cy="' + (gkY-10) + '" r="1.6" fill="#1a1a1a"/>'
-      + '<circle cx="' + (gkX+3.5) + '" cy="' + (gkY-10) + '" r="1.6" fill="#1a1a1a"/>'
-      + '<circle cx="' + (gkX-2.5) + '" cy="' + (gkY-11) + '" r="0.7" fill="white"/>'
-      + '<circle cx="' + (gkX+4.5) + '" cy="' + (gkY-11) + '" r="0.7" fill="white"/>'
+      '<circle cx="'+(gkX-3)+'" cy="'+(gkY-9)+'" r="1.5" fill="#1a1a1a"/>' +
+      '<circle cx="'+(gkX+3)+'" cy="'+(gkY-9)+'" r="1.5" fill="#1a1a1a"/>' +
+      '<circle cx="'+(gkX-2)+'" cy="'+(gkY-10)+'" r="0.6" fill="white"/>' +
+      '<circle cx="'+(gkX+4)+'" cy="'+(gkY-10)+'" r="0.6" fill="white"/>';
+
+    // ── Assemble SVG ──────────────────────────────────
+    var uid = Math.random().toString(36).slice(2,7);
+    var svgStr =
+      '<svg class="vgoal-svg" id="vgoal-'+uid+'" viewBox="0 0 300 155" xmlns="http://www.w3.org/2000/svg">'+
+      '<defs>'+
+        '<linearGradient id="vfG'+uid+'" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">'+
+          '<stop offset="0" stop-color="#163d1f"/><stop offset="1" stop-color="#0a2610"/>'+
+        '</linearGradient>'+
+        '<linearGradient id="vsG'+uid+'" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">'+
+          '<stop offset="0" stop-color="#02050e"/><stop offset="1" stop-color="#071220"/>'+
+        '</linearGradient>'+
+        '<filter id="glow'+uid+'">'+
+          '<feGaussianBlur stdDeviation="3" result="coloredBlur"/>'+
+          '<feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>'+
+        '</filter>'+
+      '</defs>'+
+      // Sky
+      '<rect width="300" height="82" fill="url(#vsG'+uid+')"/>'+
+      // Stars
+      '<circle cx="28" cy="11" r="0.7" fill="white" opacity="0.4"/>'+
+      '<circle cx="83" cy="6" r="0.55" fill="white" opacity="0.3"/>'+
+      '<circle cx="198" cy="18" r="0.65" fill="white" opacity="0.35"/>'+
+      '<circle cx="255" cy="8" r="0.55" fill="white" opacity="0.3"/>'+
+      '<circle cx="272" cy="30" r="0.5" fill="white" opacity="0.22"/>'+
+      '<circle cx="145" cy="5" r="0.5" fill="white" opacity="0.28"/>'+
+      // Field
+      '<rect y="82" width="300" height="73" fill="url(#vfG'+uid+')"/>'+
+      // Field stripes
+      '<rect y="82" width="300" height="12" fill="rgba(255,255,255,0.018)"/>'+
+      '<rect y="106" width="300" height="12" fill="rgba(255,255,255,0.018)"/>'+
+      '<rect y="130" width="300" height="12" fill="rgba(255,255,255,0.018)"/>'+
+      // Penalty arc
+      '<path d="M95 155 Q150 114 205 155" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>'+
+      '<circle cx="150" cy="146" r="2" fill="rgba(255,255,255,0.45)"/>'+
+      // Net
+      netV + netH +
+      // Goal frame — back net face (depth effect)
+      '<rect x="29" y="13" width="242" height="67" fill="rgba(255,255,255,0.015)" rx="0"/>'+
+      // Posts (left, right)
+      '<rect x="22" y="9" width="7" height="71" fill="#f0f0f0" rx="2.5"/>'+
+      '<rect x="271" y="9" width="7" height="71" fill="#f0f0f0" rx="2.5"/>'+
+      // Crossbar
+      '<rect x="22" y="7" width="256" height="6.5" fill="#fff" rx="2.5"/>'+
+      // Ground line
+      '<rect x="22" y="80" width="256" height="2" fill="rgba(255,255,255,0.18)" rx="1"/>'+
+      // Post shadows (depth)
+      '<rect x="29" y="9" width="4" height="71" fill="rgba(0,0,0,0.18)"/>'+
+      '<rect x="268" y="9" width="4" height="71" fill="rgba(0,0,0,0.18)"/>'+
+      // Zone dividers
+      dividers +
+      // GK
+      gk +
+      // Clickable zones (on top)
+      zoneRects +
       // Ball
-      + ball
-      // % labels
-      + zLabels
-      + '</svg>';
+      ball +
+      '</svg>';
 
-    // Zone buttons HTML
-    const zonesHTML = zones.map(function(z) {
-      return '<button class="vgoal-zone-btn" data-choice="' + z.id + '" data-pct="' + z.pct + '">'
-        + '<span class="vgz-arrow">' + z.arrow + '</span>'
-        + '<span class="vgz-pct" style="color:' + pc(z.pct) + '">' + z.pct + '%</span>'
-        + '</button>';
-    }).join('');
+    var penBadge = isPenalty ? '<span class="penalty-badge">PENALTI</span>' : '';
+    var hint = '<div class="gk-hint"><span class="gk-icon">🧤</span><span>'+gkHint.text+'</span>'+penBadge+'</div>';
 
-    return '<div class="goal-wrapper">'
-      + '<div class="gk-hint"><span class="gk-icon">🧤</span><span>' + gkHint.text + '</span>' + penBadge + '</div>'
-      + '<div class="visual-goal-wrap">' + svgStr + '<div class="vgoal-zones-overlay">' + zonesHTML + '</div></div>'
-      + '</div>';
+    return '<div class="goal-wrapper">' + hint + '<div class="vgoal-svg-wrap">' + svgStr + '</div></div>';
   }
 
   // ── Render standard options ──────────────────────────────
@@ -505,14 +562,29 @@ const DecisionEngine = (() => {
     }, 1000);
   }
 
-  // ── Flash result on chosen button ────────────────────────
+  // ── Flash result (SVG zones + regular buttons) ───────────
   function flashResult(btn, success) {
-    btn.classList.add(success ? 'dec-success' : 'dec-fail');
-    const lbl = document.createElement('div');
-    lbl.className = 'dec-result-lbl';
-    lbl.style.color = success ? '#00e664' : '#ff4444';
-    lbl.textContent = success ? '✓ ¡GOOOOL!' : '✗ FALLIDO';
-    btn.appendChild(lbl);
+    var isSVGZone = btn && btn.tagName && btn.tagName.toLowerCase() === 'g';
+    if (isSVGZone) {
+      // Overlay on the SVG wrap
+      var svgWrap = document.querySelector('.vgoal-svg-wrap');
+      if (svgWrap) {
+        svgWrap.style.position = 'relative';
+        var res = document.createElement('div');
+        res.className = 'goal-shot-result ' + (success ? 'shot-goal' : 'shot-miss');
+        var sp = document.createElement('span');
+        sp.textContent = success ? '⚽ ¡GOOOL!' : '✗ Atajado';
+        res.appendChild(sp);
+        svgWrap.appendChild(res);
+      }
+    } else {
+      btn.classList.add(success ? 'dec-success' : 'dec-fail');
+      var lbl = document.createElement('div');
+      lbl.className = 'dec-result-lbl';
+      lbl.style.color = success ? '#22dd88' : '#ff5555';
+      lbl.textContent = success ? '✓ ¡Éxito!' : '✗ Fallido';
+      btn.appendChild(lbl);
+    }
   }
 
   // ── Main prompt (returns Promise) ─────────────────────────
@@ -534,7 +606,7 @@ const DecisionEngine = (() => {
       overlay.classList.remove('hidden');
 
       const totalSec = seconds;
-      const btns = Array.from(overlay.querySelectorAll('.decision-btn, .vgoal-zone-btn'));
+      const btns = Array.from(overlay.querySelectorAll('.decision-btn, .svg-zone'));
 
       var chosen = false;
 
@@ -542,18 +614,30 @@ const DecisionEngine = (() => {
         if (chosen) return;
         chosen = true;
         clearInterval(_timer);
+
+        // Disable all zones/btns
         btns.forEach(function(b) {
-          b.disabled = true;
-          b.style.opacity = (b === btn) ? '1' : '0.3';
+          if (b.tagName && b.tagName.toLowerCase() === 'g') {
+            // SVG zone
+            b.classList.add('zone-disabled');
+            if (b === btn) b.classList.add('zone-chosen');
+            else           b.classList.add('zone-dim');
+          } else {
+            b.disabled = true;
+            b.style.opacity = (b === btn) ? '1' : '0.28';
+          }
         });
+
         const choice  = btn.dataset.choice;
         const pct     = parseInt(btn.dataset.pct) || 50;
         const success = (Math.random() * 100) < pct;
+
         flashResult(btn, success);
+
         setTimeout(function() {
           overlay.classList.add('hidden');
           resolve({ choice: choice, success: success, pct: pct });
-        }, 1000);
+        }, 1100);
       }
 
       btns.forEach(function(btn) {

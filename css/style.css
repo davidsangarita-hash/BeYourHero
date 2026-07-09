@@ -1192,3 +1192,238 @@ select option { background: #0d1421; color: var(--text-primary); }
 .news-card:nth-child(4) { animation-delay: 0.20s; }
 .news-card:nth-child(5) { animation-delay: 0.25s; }
 
+
+/* ============================================================
+   SVG GOAL ZONES — clickable areas inside the goal SVG
+   ============================================================ */
+.vgoal-svg-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+}
+.vgoal-svg { display: block; width: 100%; height: auto; }
+
+/* Zone hover: fills with team color tint */
+.svg-zone-rect {
+  transition: fill 0.12s ease;
+  rx: 2;
+}
+.svg-zone:hover .svg-zone-rect,
+.svg-zone:focus .svg-zone-rect {
+  fill: rgba(255,255,255,0.12);
+}
+.svg-zone:active .svg-zone-rect {
+  fill: rgba(255,215,0,0.22);
+}
+/* Arrow brightens on hover */
+.svg-zone-arrow {
+  transition: fill 0.12s ease, font-size 0.12s ease;
+  pointer-events: none;
+}
+.svg-zone:hover .svg-zone-arrow,
+.svg-zone:focus .svg-zone-arrow {
+  fill: rgba(255,255,255,0.9) !important;
+}
+/* Pct label: always visible but brighter on hover */
+.svg-zone-pct {
+  transition: opacity 0.12s;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.svg-zone:hover .svg-zone-pct,
+.svg-zone:focus .svg-zone-pct {
+  opacity: 1;
+}
+/* Disabled state after pick */
+.svg-zone.zone-disabled { pointer-events: none; }
+.svg-zone.zone-chosen .svg-zone-rect  { fill: rgba(255,215,0,0.28) !important; }
+.svg-zone.zone-dim    .svg-zone-rect  { fill: rgba(0,0,0,0.35) !important; }
+.svg-zone.zone-dim    .svg-zone-arrow { fill: rgba(255,255,255,0.15) !important; }
+.svg-zone.zone-dim    .svg-zone-pct   { opacity: 0.25 !important; }
+
+/* Flash result inside SVG via a badge overlay */
+.goal-shot-result {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  animation: shotResultIn 0.25s ease both;
+}
+.goal-shot-result span {
+  font-size: clamp(22px, 5vw, 36px); font-weight: 900;
+  font-family: 'Outfit', Arial, sans-serif;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 8px 20px; border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+.shot-goal span {
+  color: #00ff88; background: rgba(0,220,100,0.18);
+  border: 1.5px solid rgba(0,220,100,0.4);
+  text-shadow: 0 0 20px rgba(0,255,136,0.6);
+}
+.shot-miss span {
+  color: #ff5555; background: rgba(255,50,50,0.14);
+  border: 1.5px solid rgba(255,50,50,0.35);
+}
+@keyframes shotResultIn {
+  from { opacity:0; transform: scale(0.7); }
+  to   { opacity:1; transform: scale(1); }
+}
+
+/* GK Hint bar */
+.gk-hint {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; margin-bottom: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  font-size: 12px; color: var(--text-secondary);
+}
+.gk-icon { font-size: 16px; }
+.penalty-badge {
+  margin-left: auto; padding: 2px 10px;
+  background: rgba(255,50,50,0.15);
+  border: 1px solid rgba(255,80,80,0.4);
+  border-radius: 20px; font-size: 9px; font-weight: 800;
+  color: #ff7070; letter-spacing: 1.5px;
+}
+
+/* ============================================================
+   DECISION CARD — cleaner, less cluttered
+   ============================================================ */
+.decision-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px) saturate(0.6);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.decision-container {
+  width: 100%; max-width: 520px;
+}
+.decision-card {
+  background: rgba(6,10,22,0.98);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 18px; padding: 20px 20px 16px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+  animation: decCardIn 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes decCardIn {
+  from { opacity:0; transform: translateY(24px) scale(0.96); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+.dec-header {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px;
+}
+.dec-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+.dec-meta { flex: 1; min-width: 0; }
+.dec-badge {
+  display: inline-block; padding: 2px 9px; border-radius: 20px;
+  background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.22);
+  font-size: 8px; font-weight: 800; letter-spacing: 2px;
+  color: #FFD700; margin-bottom: 5px; text-transform: uppercase;
+}
+.dec-scenario {
+  font-size: 13px; color: var(--text-secondary);
+  line-height: 1.5; margin: 0;
+}
+/* Timer */
+.dec-timer-wrap { position: relative; width: 42px; height: 42px; flex-shrink: 0; }
+.timer-ring { width: 42px; height: 42px; transform: rotate(-90deg); }
+.ring-bg   { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 3; }
+.ring-fill {
+  fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round;
+  transition: stroke-dashoffset 0.95s linear;
+}
+.timer-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: var(--text-primary);
+}
+.timer-urgent { color: #ff5555 !important; animation: urgentPulse 0.4s ease infinite alternate; }
+@keyframes urgentPulse { from { opacity:1; } to { opacity:0.5; } }
+
+/* ── Standard decision options grid ── */
+.decision-options { display: grid; gap: 8px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: repeat(3,1fr); }
+.grid-4 { grid-template-columns: 1fr 1fr; }
+
+.decision-btn {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 5px; padding: 12px 8px 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--text-primary); text-align: center;
+  position: relative; overflow: hidden;
+}
+.decision-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,215,0,0.04), transparent);
+  opacity: 0; transition: opacity 0.15s;
+}
+.decision-btn:hover { border-color: rgba(255,215,0,0.3); transform: translateY(-2px); }
+.decision-btn:hover::before { opacity: 1; }
+.decision-btn:active { transform: translateY(0); }
+.dopt-icon  { font-size: 20px; line-height: 1; }
+.dopt-label {
+  font-size: 11px; font-weight: 600; line-height: 1.35;
+  color: var(--text-primary); white-space: pre-wrap;
+}
+.dopt-bar {
+  width: 100%; height: 3px; border-radius: 2px;
+  background: rgba(255,255,255,0.08); overflow: hidden;
+}
+.dopt-bar-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.pct-high .dopt-bar-fill, .dopt-bar-fill.pct-high { background: #22dd88; }
+.pct-mid  .dopt-bar-fill, .dopt-bar-fill.pct-mid  { background: #ffaa22; }
+.pct-low  .dopt-bar-fill, .dopt-bar-fill.pct-low  { background: #ff5555; }
+.dopt-pct { font-size: 10px; font-weight: 700; }
+.dopt-pct.pct-high { color: #22dd88; }
+.dopt-pct.pct-mid  { color: #ffaa22; }
+.dopt-pct.pct-low  { color: #ff5555; }
+
+/* Result labels */
+.dec-result-lbl {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; border-radius: 11px;
+  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.55);
+  letter-spacing: 1px;
+  animation: resultPop 0.2s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes resultPop { from { transform: scale(0.8); opacity:0; } to { transform: scale(1); opacity:1; } }
+.dec-success { border-color: rgba(34,221,136,0.5) !important; }
+.dec-fail    { border-color: rgba(255,85,85,0.5)  !important; }
+
+/* ── Between-match card ── */
+.between-card {
+  background: rgba(6,10,22,0.98);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px; padding: 20px;
+  animation: decCardIn 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.between-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.between-icon { font-size: 26px; }
+.between-title {
+  font-size: 15px; font-weight: 700;
+  color: var(--text-primary); margin: 0 0 14px;
+  line-height: 1.4;
+}
+.between-desc {
+  font-size: 9px; color: var(--gold); font-weight: 700;
+  letter-spacing: 0.5px; margin-top: 2px;
+}
+.between-btn { justify-content: flex-start !important; flex-direction: row !important; text-align: left !important; gap: 10px !important; }
+.between-btn .dopt-label { font-size: 12px !important; }
+
